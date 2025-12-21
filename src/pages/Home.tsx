@@ -308,7 +308,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <GraduationCap className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-[1.5rem] md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
+            <h2 className="text-4xl md:text-5xl  font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {certificates.map((cert) => (
@@ -359,7 +359,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-secondary to-primary rounded-2xl shadow-xl">
               <Code className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-[1.5rem] md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {skills.map((skill) => (
