@@ -85,7 +85,7 @@ export default function Login() {
 
   return (
     <div
-      className="min-h-screen relative bg-gradient-to-r from-blue-50 to-purple-50 dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
+      className="min-h-screen relative bg-gradient-to-r from-primary to-secondary dark:from-gray-900 dark:to-gray-800 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8"
       dir="rtl"
     >
       <button

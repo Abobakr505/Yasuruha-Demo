@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 import CopyProtection from "./ui/CopyProtection";
+import NotFound from "./pages/NotFound";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="*" element={<NotFound />} />
           <Route element={<ProtectedRoute />}>
             <Route path="/dashboard/*" element={<Dashboard />} />
           </Route>
