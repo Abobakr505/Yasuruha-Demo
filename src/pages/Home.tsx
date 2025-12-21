@@ -290,58 +290,6 @@ export default function Home() {
           )}
         </div>
       </motion.section>
-
-      {/* قسم الشهادات */}
-      <motion.section
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-200px" }}
-        className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20"
-        id="certificates"
-      >
-        <div className="container mx-auto px-6">
-          <motion.div
-            className="flex items-center gap-4 mb-16 text-left"
-            variants={itemVariants}
-          >
-            <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
-              <GraduationCap className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-4xl md:text-5xl  font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {certificates.map((cert) => (
-              <motion.div
-                key={cert.id}
-                variants={itemVariants}
-                whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
-                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-primary"
-              >
-                <div className="relative h-56 overflow-hidden">
-                  <motion.img
-                    src={cert.image_url}
-                    alt={cert.title}
-                    className="w-full h-full object-cover"
-                    initial={{ scale: 1.1 }}
-                    whileHover={{ scale: 1.2 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </div>
-                <div className="p-8 text-left">
-                  <h3 className="text-2xl font-bold mb-3 text-primary">{cert.title}</h3>
-                  <p className="text-secondary text-base font-medium mb-4">{cert.issuer}</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="bg-primary/20 text-primary px-4 py-2 rounded-full font-semibold">{cert.category}</span>
-                    <span className="text-gray-600 dark:text-gray-400">{new Date(cert.date).toLocaleDateString("ar")}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
-
       {/* قسم المهارات */}
       <motion.section
         variants={containerVariants}
@@ -392,6 +340,58 @@ export default function Home() {
           </div>
         </div>
       </motion.section>
+      {/* قسم الشهادات */}
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-200px" }}
+        className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20"
+        id="certificates"
+      >
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left"
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
+              <GraduationCap className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {certificates.map((cert) => (
+              <motion.div
+                key={cert.id}
+                variants={itemVariants}
+                whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-primary"
+              >
+                <div className="relative h-56 overflow-hidden">
+                  <motion.img
+                    src={cert.image_url}
+                    alt={cert.title}
+                    className="w-full h-full object-cover"
+                    initial={{ scale: 1.1 }}
+                    whileHover={{ scale: 1.2 }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </div>
+                <div className="p-8 text-left">
+                  <h3 className="text-2xl font-bold mb-3 text-primary">{cert.title}</h3>
+                  <p className="text-secondary text-base font-medium mb-4">{cert.issuer}</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="bg-primary/20 text-primary px-4 py-2 rounded-full font-semibold">{cert.category}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{new Date(cert.date).toLocaleDateString("ar")}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+
 
       {/* قسم الخدمات مع أنميشن أفضل وتصميم عصري */}
       <motion.section
