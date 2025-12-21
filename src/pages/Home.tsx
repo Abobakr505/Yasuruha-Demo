@@ -290,7 +290,56 @@ export default function Home() {
           )}
         </div>
       </motion.section>
-
+      {/* قسم المهارات */}
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-200px" }}
+        className="py-24 bg-gradient-to-br from-secondary/10 to-primary/10 dark:from-secondary/20 dark:to-primary/20"
+        id="skills"
+      >
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left"
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-secondary to-primary rounded-2xl shadow-xl">
+              <Code className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {skills.map((skill) => (
+              <motion.div
+                key={skill.id}
+                variants={itemVariants}
+                whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-secondary"
+              >
+                <div className="relative h-56 overflow-hidden">
+                  <motion.img
+                    src={skill.image_url}
+                    alt={skill.title}
+                    className="w-full h-full object-cover"
+                    initial={{ scale: 1.1 }}
+                    whileHover={{ scale: 1.2 }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </div>
+                <div className="p-8 text-left">
+                  <h3 className="text-2xl font-bold mb-3 text-secondary">{skill.title}</h3>
+                  <p className="text-primary text-base font-medium mb-4">{skill.issuer}</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="bg-secondary/20 text-secondary px-4 py-2 rounded-full font-semibold">{skill.category}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{new Date(skill.date).toLocaleDateString("ar")}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
       {/* قسم الشهادات */}
       <motion.section
         variants={containerVariants}
@@ -308,7 +357,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <GraduationCap className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-[1.5rem] md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {certificates.map((cert) => (
@@ -342,56 +391,7 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* قسم المهارات */}
-      <motion.section
-        variants={containerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-200px" }}
-        className="py-24 bg-gradient-to-br from-secondary/10 to-primary/10 dark:from-secondary/20 dark:to-primary/20"
-        id="skills"
-      >
-        <div className="container mx-auto px-6">
-          <motion.div
-            className="flex items-center gap-4 mb-16 text-left"
-            variants={itemVariants}
-          >
-            <div className="p-4 bg-gradient-to-br from-secondary to-primary rounded-2xl shadow-xl">
-              <Code className="w-10 h-10 text-white" />
-            </div>
-            <h2 className="text-[1.5rem] md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
-          </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {skills.map((skill) => (
-              <motion.div
-                key={skill.id}
-                variants={itemVariants}
-                whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
-                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-secondary"
-              >
-                <div className="relative h-56 overflow-hidden">
-                  <motion.img
-                    src={skill.image_url}
-                    alt={skill.title}
-                    className="w-full h-full object-cover"
-                    initial={{ scale: 1.1 }}
-                    whileHover={{ scale: 1.2 }}
-                    transition={{ duration: 0.4 }}
-                  />
-                </div>
-                <div className="p-8 text-left">
-                  <h3 className="text-2xl font-bold mb-3 text-secondary">{skill.title}</h3>
-                  <p className="text-primary text-base font-medium mb-4">{skill.issuer}</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="bg-secondary/20 text-secondary px-4 py-2 rounded-full font-semibold">{skill.category}</span>
-                    <span className="text-gray-600 dark:text-gray-400">{new Date(skill.date).toLocaleDateString("ar")}</span>
-                  </div>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.section>
+
 
       {/* قسم الخدمات مع أنميشن أفضل وتصميم عصري */}
       <motion.section
