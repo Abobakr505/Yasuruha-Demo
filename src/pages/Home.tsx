@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   GraduationCap,
@@ -10,72 +10,53 @@ import {
   Clock,
   Stethoscope,
   ArrowUp,
-  
 } from "lucide-react";
 import { cardio } from "ldrs";
-cardio.register(); // Default values shown
-
+cardio.register();
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ContactForm from "../components/ContactForm";
 import { supabase } from "../lib/supabase";
-import img from '../images/home.webp'
+import img from '../images/home.webp';
+
 // دالة لجلب إعدادات الألوان من Supabase وتطبيقها على متغيرات CSS
 const applyThemeColors = async () => {
   try {
     const { data } = await supabase.from("site_theme").select("*").single();
     if (data) {
-      document.documentElement.style.setProperty(
-        "--primary-color",
-        data.primary_color
-      );
-      document.documentElement.style.setProperty(
-        "--secondary-color",
-        data.secondary_color
-      );
-      document.documentElement.style.setProperty(
-        "--text-color",
-        data.text_color
-      );
+      document.documentElement.style.setProperty("--primary-color", data.primary_color);
+      document.documentElement.style.setProperty("--secondary-color", data.secondary_color);
+      document.documentElement.style.setProperty("--text-color", data.text_color);
     }
   } catch (error) {
     console.error("Error applying theme colors:", error);
   }
 };
 
-// مكون زر التمرير إلى الأعلى
+// مكون زر التمرير إلى الأعلى مع أنميشن أكثر سلاسة وتصميم أنيق
 const ScrollToTop = () => {
-  const [isVisible, setIsVisible] = React.useState(false);
-
+  const [isVisible, setIsVisible] = useState(false);
   const toggleVisibility = () => {
-    if (window.pageYOffset > 300) {
-      setIsVisible(true);
-    } else {
-      setIsVisible(false);
-    }
+    setIsVisible(window.pageYOffset > 300);
   };
-
   const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
-
   useEffect(() => {
     window.addEventListener("scroll", toggleVisibility);
     return () => window.removeEventListener("scroll", toggleVisibility);
   }, []);
-
   return (
     <AnimatePresence>
       {isVisible && (
         <motion.button
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.8 }}
+          whileHover={{ scale: 1.1, rotate: 180 }}
+          whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className="fixed bottom-8 left-8 border-4 border-white dark:border-gray-800 bg-primary text-white p-3 rounded-full shadow-lg transition-colors duration-300 z-50"
+          className="fixed bottom-8 left-8 bg-primary text-white p-4 rounded-full shadow-2xl hover:shadow-primary/50 transition-all duration-300 z-50 border-2 border-white dark:border-gray-800"
           aria-label="التمرير إلى الأعلى"
         >
           <ArrowUp className="w-6 h-6" />
@@ -90,37 +71,31 @@ export default function Home() {
     applyThemeColors();
   }, []);
 
-  const [certificates, setCertificates] = React.useState([]);
-  const [services, setServices] = React.useState([]);
-  const [projects, setProjects] = React.useState([]);
-  const [aboutData, setAboutData] = React.useState(null);
-  const [loading, setLoading] = React.useState(true);
+  const [certificates, setCertificates] = useState([]);
+  const [skills, setSkills] = useState([]);
+  const [services, setServices] = useState([]);
+  const [projects, setProjects] = useState([]);
+  const [aboutData, setAboutData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const [
           { data: certs },
+          { data: sks },
           { data: servs },
           { data: projs },
           { data: about },
         ] = await Promise.all([
-          supabase
-            .from("certificates")
-            .select("*")
-            .order("date", { ascending: false }),
-          supabase
-            .from("services")
-            .select("*")
-            .order("created_at", { ascending: false }),
-          supabase
-            .from("projects")
-            .select("*")
-            .order("created_at", { ascending: false }),
+          supabase.from("certificates").select("*").order("date", { ascending: false }),
+          supabase.from("skills").select("*").order("created_at", { ascending: false }),
+          supabase.from("services").select("*").order("created_at", { ascending: false }),
+          supabase.from("projects").select("*").order("created_at", { ascending: false }),
           supabase.from("about").select("*").single(),
         ]);
-
         setCertificates(certs || []);
+        setSkills(sks || []);
         setServices(servs || []);
         setProjects(projs || []);
         setAboutData(about || null);
@@ -130,7 +105,6 @@ export default function Home() {
         setLoading(false);
       }
     };
-
     fetchData();
   }, []);
 
@@ -138,137 +112,115 @@ export default function Home() {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.2 },
+      transition: { staggerChildren: 0.2, duration: 1 },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1 },
+    hidden: { y: 100, opacity: 0 },
+    visible: { y: 0, opacity: 1, transition: { type: "spring", stiffness: 80, damping: 20 } },
+  };
+
+  const heroImageVariants = {
+    animate: {
+      y: [0, -15, 0],
+      rotate: [0, 2, -2, 0],
+      transition: { duration: 5, repeat: Infinity, ease: "easeInOut" },
+    },
   };
 
   if (loading)
     return (
       <div className="h-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <l-cardio
-          size="125"
-          stroke="4"
-          speed="0.5"
-          color="var(--primary-color)"
-        ></l-cardio>
+        <l-cardio size="150" stroke="5" speed="0.6" color="var(--primary-color)"></l-cardio>
       </div>
     );
 
   return (
-    <div
-      className="min-h-screen bg-gray-50 dark:bg-gray-900 text-right dark:text-gray-100"
-      dir="rtl"
-    >
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 text-right dark:text-gray-100" dir="rtl">
       <Navbar />
-
-      {/* قسم الـ Hero */}
+      {/* قسم الـ Hero مع أنميشن parallax وتأثيرات حديثة أكثر */}
       <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.8 }}
-        className="bg-gradient-to-r from-secondary to-primary text-white py-32 relative overflow-hidden dark:from-secondary dark:to-primary"
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1.2 }}
+        className="relative overflow-hidden py-40 bg-gradient-to-br from-primary to-secondary text-white"
       >
-        {/* دوائر خلفية متحركة */}
-        <div className="absolute -top-32 -right-32 w-96 h-96 bg-primary/20 rounded-full animate-pulse" />
-        <div className="absolute -bottom-48 -left-48 w-96 h-96 bg-primary/20 rounded-full animate-pulse delay-300" />
-
-        <div className="container mx-auto px-4 relative flex flex-col md:flex-row items-center justify-between pt-12">
-          {/* النصوص والعناصر */}
-          <div className="md:w-1/2 mb-12 md:mb-0">
-            <motion.h1
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="text-5xl md:text-4xl mb-6 leading-tight"
-            >
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-white/35 to-white py-8 font-bold">
-                مرحباً بكم معكم د / احمد محمد
-              </span>
-            </motion.h1>
-
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.3 }}
-              className="text-lg text-secondary/80"
-            >
-              دكتور متخصص في علاج الأسنان
-            </motion.p>
-
-            <motion.p
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.4 }}
-              className="text-lg md:text-xl mb-8 text-secondary/60 max-w-2xl"
-            >
-              {aboutData?.experience_text}
-            </motion.p>
-
+        {/* خلفية متحركة مع تأثيرات بلورية وأنميشن */}
+        <motion.div
+          className="absolute inset-0 opacity-30 backdrop-blur-md"
+          animate={{
+            background: [
+              "radial-gradient(circle at 30% 40%, var(--primary-color) 0%, transparent 60%)",
+              "radial-gradient(circle at 70% 60%, var(--secondary-color) 0%, transparent 60%)",
+              "radial-gradient(circle at 50% 50%, var(--primary-color) 0%, transparent 60%)",
+            ],
+          }}
+          transition={{ duration: 15, repeat: Infinity, repeatType: "reverse" }}
+        />
+        <div className="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between relative z-10">
+          <motion.div
+            className="md:w-1/2 mb-16 md:mb-0"
+            initial={{ x: -200, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            transition={{ duration: 1, delay: 0.3 }}
+          >
+            <h1 className="text-5xl md:text-7xl font-extrabold mb-8 leading-tight bg-clip-text text-transparent bg-gradient-to-r from-white to-white/50 drop-shadow-lg">
+              مرحباً بكم معكم د / احمد محمد
+            </h1>
+            <p className="text-2xl md:text-3xl mb-6 text-white/90 font-semibold">دكتور متخصص في علاج الأسنان</p>
+            <p className="text-lg md:text-xl mb-10 text-white/70 max-w-2xl leading-relaxed">{aboutData?.experience_text}</p>
             <motion.a
               href="#contact"
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.6 }}
-              className="inline-block font-bold bg-white text-secondary  px-8 py-3 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 hover:bg-secondary/10 "
+              whileHover={{ scale: 1.1, boxShadow: "0px 0px 20px rgba(255,255,255,0.5)" }}
+              whileTap={{ scale: 0.95 }}
+              className="inline-block bg-white text-primary font-bold px-10 py-5 rounded-full shadow-2xl hover:bg-white/90 transition-all duration-300 text-lg"
             >
               تواصل معي الآن
             </motion.a>
-          </div>
-
-          {/* الصورة الشخصية */}
+          </motion.div>
           <motion.div
-            animate={{
-              x: [0, 20, 0, -20, 0],
-              y: [0, 10, 0, -10, 0],
-            }}
-            transition={{
-              duration: 10,
-              ease: "easeInOut",
-              repeat: Infinity,
-            }}
-            className="md:w-1/2 flex justify-center relative"
+            variants={heroImageVariants}
+            animate="animate"
+            className="md:w-1/2 flex justify-center"
           >
-            <div className="relative rounded-full w-72 h-72 overflow-hidden border-4 border-white dark:border-gray-700 shadow-2xl">
-              <img
-                src={img}
-                alt="الصورة الشخصية"
-                className="w-full h-full object-cover"
-                loading="lazy"
-              />
+            <div className="relative w-80 h-80 md:w-112 md:h-112 rounded-full overflow-hidden border-8 border-white/40 shadow-2xl backdrop-blur-lg transform hover:scale-105 transition-transform duration-500">
+              <img src={img} alt="الصورة الشخصية" className="w-full h-full object-cover" loading="lazy" />
             </div>
           </motion.div>
         </div>
       </motion.section>
 
-      {/* قسم من نحن */}
+      {/* قسم من نحن - متجاوب بالكامل */}
       <motion.section
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "0px 0px -150px 0px" }}
-        className="py-20 bg-white dark:bg-gray-900"
+        viewport={{ once: true, margin: "-150px" }}
+        className="py-16 md:py-24 bg-white dark:bg-gray-900"
         id="about"
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="p-3 bg-gradient-to-br from-primary to-white rounded-xl">
-              <User className="w-8 h-8 text-primary" />
+        <div className="container mx-auto px-4 md:px-6">
+
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left" // محاذاة إلى اليسار
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
+              <User className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-3xl font-bold dark:text-gray-100 border-r-4 border-primary pr-4">
-              من أنا ؟
-            </h2>
-          </div>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">من أنا ؟</h2> {/* border-l لليسار */}
+          </motion.div>
 
           {aboutData && (
-            <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
+
+              {/* الصورة */}
               <motion.div
                 variants={itemVariants}
-                className="relative h-96 rounded-2xl overflow-hidden shadow-xl border-8 border-white dark:border-gray-700 transform hover:scale-105 transition-transform duration-300"
+                className="relative h-72 sm:h-80 md:h-[28rem] rounded-3xl 
+                           overflow-hidden shadow-2xl border-4 border-primary"
+                whileHover={{ rotate: 2 }}
               >
                 <img
                   src={aboutData.image_url}
@@ -276,42 +228,62 @@ export default function Home() {
                   className="w-full h-full object-cover"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-primary/40 to-transparent" />
               </motion.div>
 
-              <motion.div variants={itemVariants} className="space-y-6">
-                <h3 className="text-2xl  bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary p-1 font-bold">
-                  {aboutData.name} - {aboutData.title}
+              {/* المحتوى */}
+              <motion.div
+                variants={itemVariants}
+                className="space-y-6 md:space-y-8 
+                           text-center md:text-left"
+              >
+                <h3 className="text-2xl md:text-4xl font-bold 
+                               bg-clip-text text-transparent 
+                               bg-gradient-to-r from-primary to-secondary">
+                  {aboutData.name} – {aboutData.title}
                 </h3>
 
-                <p className="text-gray-900 dark:text-gray-300 leading-relaxed text-lg border-r-4 border-secondary/20 dark:border-primary pr-4">
+                <p className="text-gray-800 dark:text-gray-300 
+                              leading-relaxed text-base md:text-xl 
+                              md:border-l-4 md:border-secondary md:pl-5">
                   {aboutData.description}
                 </p>
 
-                <div className="grid md:grid-cols-2 gap-4">
-                  <div className="bg-gradient-to-br from-secondary to-white/20 p-5 rounded-xl shadow-sm border border-secondary">
+                {/* الإحصائيات */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+
+                  <motion.div
+                    className="bg-gradient-to-br from-primary to-secondary 
+                               p-6 md:p-8 rounded-2xl shadow-xl"
+                    whileHover={{ y: -8 }}
+                  >
                     <div className="flex items-center gap-3">
-                      <Briefcase className="w-7 h-7 text-primary dark:text-secondary" />
-                      <span className="text-lg text-gray-900 dark:text-gray-100 font-bold">
+                      <Briefcase className="w-7 h-7 text-white" />
+                      <span className="text-lg md:text-xl font-bold text-white">
                         {aboutData.projects_count}+ مشروع
                       </span>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 mt-2 text-sm">
+                    <p className="text-white/80 mt-2 text-sm md:text-base">
                       منجز بنجاح
                     </p>
-                  </div>
+                  </motion.div>
 
-                  <div className="bg-gradient-to-br from-primary to-white/20 p-5 rounded-xl shadow-sm border border-primary">
+                  <motion.div
+                    className="bg-gradient-to-br from-secondary to-primary 
+                               p-6 md:p-8 rounded-2xl shadow-xl"
+                    whileHover={{ y: -8 }}
+                  >
                     <div className="flex items-center gap-3">
-                      <Clock className="w-7 h-7 text-primary dark:text-secondary" />
-                      <span className="text-lg text-gray-900 dark:text-gray-100 font-bold">
-                        {aboutData.hours_experience}+ سنه
+                      <Clock className="w-7 h-7 text-white" />
+                      <span className="text-lg md:text-xl font-bold text-white">
+                        {aboutData.hours_experience}+ سنة
                       </span>
                     </div>
-                    <p className="text-gray-700 dark:text-gray-300 mt-2 text-sm">
-                      العمل وخبرة
+                    <p className="text-white/80 mt-2 text-sm md:text-base">
+                      خبرة وعمل
                     </p>
-                  </div>
+                  </motion.div>
+
                 </div>
               </motion.div>
             </div>
@@ -319,57 +291,49 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* قسم الشهادات والمهارات */}
+      {/* قسم الشهادات */}
       <motion.section
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true }}
-        className="py-20 bg-gradient-to-br from-secondary/10 to-primary/10 dark:from-secondary/20 dark:to-primary/20"
-        id="skills"
+        viewport={{ once: true, margin: "-200px" }}
+        className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20"
+        id="certificates"
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="p-3 bg-gradient-to-br from-primary to-white rounded-xl shadow-lg">
-              <GraduationCap className="w-8 h-8 text-primary transform hover:rotate-12 transition-transform" />
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left"
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
+              <GraduationCap className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-3xl font-bold dark:text-gray-100 border-r-4 border-primary pr-4">
-              الشهادات والمهارات
-            </h2>
-          </div>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <h2 className="text-[1.5rem] md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {certificates.map((cert) => (
               <motion.div
                 key={cert.id}
                 variants={itemVariants}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-white dark:bg-gray-800 rounded-xl shadow-lg hover:shadow-xl transition-all duration-300 group overflow-hidden"
+                whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-primary"
               >
-                <div className="relative h-48">
-                  <img
+                <div className="relative h-56 overflow-hidden">
+                  <motion.img
                     src={cert.image_url}
                     alt={cert.title}
-                    className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
+                    className="w-full h-full object-cover"
+                    initial={{ scale: 1.1 }}
+                    whileHover={{ scale: 1.2 }}
+                    transition={{ duration: 0.4 }}
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
                 </div>
-
-                <div className="p-6">
-                  <h3 className="text-xl mb-2 font-bold text-primary dark:text-white">
-                    {cert.title}
-                  </h3>
-                  <p className="text-secondary font-bold dark:text-secondary text-sm">
-                    {cert.issuer}
-                  </p>
-
-                  <div className="mt-4 flex items-center justify-between">
-                    <span className="bg-secondary/10 text-primary px-3 py-1 rounded-full text-sm">
-                      {cert.category}
-                    </span>
-                    <span className="text-gray-700 dark:text-gray-300 text-sm">
-                      {new Date(cert.date).toLocaleDateString("ar")}
-                    </span>
+                <div className="p-8 text-left">
+                  <h3 className="text-2xl font-bold mb-3 text-primary">{cert.title}</h3>
+                  <p className="text-secondary text-base font-medium mb-4">{cert.issuer}</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="bg-primary/20 text-primary px-4 py-2 rounded-full font-semibold">{cert.category}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{new Date(cert.date).toLocaleDateString("ar")}</span>
                   </div>
                 </div>
               </motion.div>
@@ -378,127 +342,165 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* قسم الخدمات */}
+      {/* قسم المهارات */}
       <motion.section
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-        className="py-24 bg-gradient-to-b from-secondary/10 to-white dark:from-secondary/20 dark:to-gray-800"
+        viewport={{ once: true, margin: "-200px" }}
+        className="py-24 bg-gradient-to-br from-secondary/10 to-primary/10 dark:from-secondary/20 dark:to-primary/20"
+        id="skills"
+      >
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left"
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-secondary to-primary rounded-2xl shadow-xl">
+              <Code className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-[1.5rem] md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            {skills.map((skill) => (
+              <motion.div
+                key={skill.id}
+                variants={itemVariants}
+                whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-secondary"
+              >
+                <div className="relative h-56 overflow-hidden">
+                  <motion.img
+                    src={skill.image_url}
+                    alt={skill.title}
+                    className="w-full h-full object-cover"
+                    initial={{ scale: 1.1 }}
+                    whileHover={{ scale: 1.2 }}
+                    transition={{ duration: 0.4 }}
+                  />
+                </div>
+                <div className="p-8 text-left">
+                  <h3 className="text-2xl font-bold mb-3 text-secondary">{skill.title}</h3>
+                  <p className="text-primary text-base font-medium mb-4">{skill.issuer}</p>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="bg-secondary/20 text-secondary px-4 py-2 rounded-full font-semibold">{skill.category}</span>
+                    <span className="text-gray-600 dark:text-gray-400">{new Date(skill.date).toLocaleDateString("ar")}</span>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.section>
+
+      {/* قسم الخدمات مع أنميشن أفضل وتصميم عصري */}
+      <motion.section
+        variants={containerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-150px" }}
+        className="py-28 bg-gradient-to-b from-white to-primary/10 dark:from-gray-900 dark:to-primary/20"
         id="services"
       >
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex items-center gap-3 mb-16">
-            <div className="p-3 bg-gradient-to-br from-primary to-white rounded-xl shadow-inner">
-              <Briefcase className="w-8 h-8 text-primary transform hover:rotate-12 transition-transform" />
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left"
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
+              <Briefcase className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl font-bold dark:text-gray-100 border-r-4 border-primary pr-5 tracking-tight">
-              خدماتي المميزة
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">خدماتي </h2>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
             {services.map((service) => (
               <motion.div
                 key={service.id}
                 variants={itemVariants}
-                whileHover={{ y: -10, scale: 1.02 }}
-                className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 hover:shadow-2xl transition-all duration-300 border border-primary group relative overflow-hidden"
+                whileHover={{ scale: 1.08, y: -15, boxShadow: "0px 15px 40px rgba(0,0,0,0.15)" }}
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 text-center border border-primary overflow-hidden"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-white opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                <div className="relative z-10">
-                  <div className="text-primary dark:text-secondary mb-6 flex justify-center">
-                    {service.icon.startsWith("<svg") ? (
-                      <div
-                        className="w-16 h-16 p-4 bg-gradient-to-br from-secondary to-white/20 rounded-2xl shadow-sm group-hover:bg-secondary/20 transition-colors flex justify-center items-center "
-                        dangerouslySetInnerHTML={{ __html: service.icon }}
-                      />
-                    ) : (
-                      <img
-                        src={service.icon}
-                        alt={service.title}
-                        className="w-16 h-16 p-4 bg-gradient-to-br from-secondary to-white rounded-2xl shadow-sm object-contain "
-                        loading="lazy"
-                      />
-                    )}
-                  </div>
-
-                  <h3 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100 text-center">
-                    {service.title}
-                  </h3>
-
-                  <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed text-center mb-6">
-                    {service.description}
-                  </p>
-                </div>
+                <motion.div
+                  className="mb-8 flex justify-center"
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  {service.icon.startsWith("<svg") ? (
+                    <div
+                      className="w-20 h-20 p-5 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-full shadow-lg"
+                      dangerouslySetInnerHTML={{ __html: service.icon }}
+                    />
+                  ) : (
+                    <img
+                      src={service.icon}
+                      alt={service.title}
+                      className="w-20 h-20 object-contain rounded-full shadow-md"
+                      loading="lazy"
+                    />
+                  )}
+                </motion.div>
+                <h3 className="text-2xl font-bold mb-5 text-gray-900 dark:text-gray-100">{service.title}</h3>
+                <p className="text-gray-700 dark:text-gray-300 text-lg leading-relaxed">{service.description}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </motion.section>
 
-      {/* قسم المشاريع */}
+      {/* قسم المشاريع مع تحسينات */}
       <motion.section
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-        className="py-24 bg-gradient-to-b from-white to-secondary/10 dark:from-gray-800 dark:to-secondary/10"
+        viewport={{ once: true, margin: "-150px" }}
+        className="py-28 bg-gradient-to-b from-primary/10 to-white dark:from-primary/20 dark:to-gray-900"
         id="portfolio"
       >
-        <div className="container mx-auto px-4 max-w-7xl">
-          <div className="flex items-center gap-3 mb-16">
-            <div className="p-3 bg-gradient-to-br from-primary to-white rounded-xl shadow-inner">
-              <Stethoscope className="w-8 h-8 text-primary transform hover:rotate-12 transition-transform" />
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left"
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
+              <Stethoscope className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl font-bold dark:text-gray-100 border-r-4 border-primary pr-5 tracking-tight">
-              أعمالي
-            </h2>
-          </div>
-
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">أعمالي</h2>
+          </motion.div>
           {projects.length === 0 ? (
-            <div className="text-center text-gray-700 dark:text-gray-300 text-xl py-12">
-              لا توجد مشاريع متاحة حالياً
-            </div>
+            <p className="text-center text-gray-700 dark:text-gray-300 text-2xl py-16 font-semibold">لا توجد مشاريع متاحة حالياً</p>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {projects.map((project) => (
                 <motion.div
                   key={project.id}
                   variants={itemVariants}
-                  whileHover={{ scale: 1.03 }}
-                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 group"
+                  whileHover={{ scale: 1.08, rotate: -2 }}
+                  className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-secondary"
                 >
-                  <div className="relative h-64 overflow-hidden">
-                    <img
+                  <div className="relative h-72 overflow-hidden">
+                    <motion.img
                       src={project.image_url}
                       alt={project.title}
-                      className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-300"
-                      loading="lazy"
+                      className="w-full h-full object-cover"
+                      initial={{ scale: 1.05 }}
+                      whileHover={{ scale: 1.15, y: -20 }}
+                      transition={{ duration: 0.4 }}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-transparent" />
                   </div>
-
-                  <div className="p-8 relative">
-                    <h3 className="text-2xl font-bold mb-3 text-white bg-primary px-4 py-2 rounded-lg inline-block -mt-12 shadow-lg">
-                      {project.title}
-                    </h3>
-
-                    <p className="text-gray-900 dark:text-gray-200 text-lg leading-relaxed mb-4 min-h-[80px]">
-                      {project.description}
-                    </p>
-
-                    <div className="flex justify-end">
-                      <a
-                        href={project.link}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="flex  items-center gap-2 px-6 py-2 bg-primary text-white rounded-full hover:bg-secondary transition-colors duration-300 shadow-md hover:shadow-lg"
-                      >
-                        <ExternalLink className="w-5 h-5" />
-                        <span className="font-bold">زيارة المشروع</span>
-                      </a>
-                    </div>
+                  <div className="p-8 text-left">
+                    <h3 className="text-2xl font-bold mb-4 text-primary">{project.title}</h3>
+                    <p className="text-gray-700 dark:text-gray-300 text-lg mb-6 leading-relaxed">{project.description}</p>
+                    <motion.a
+                      href={project.link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all duration-300 font-semibold"
+                      whileHover={{ scale: 1.05 }}
+                    >
+                      <ExternalLink className="w-5 h-5" />
+                      زيارة المشروع
+                    </motion.a>
                   </div>
                 </motion.div>
               ))}
@@ -507,28 +509,26 @@ export default function Home() {
         </div>
       </motion.section>
 
-      {/* قسم تواصل معنا */}
+      {/* قسم التواصل مع تحسينات */}
       <motion.section
         variants={containerVariants}
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true }}
-        className="py-20 bg-gradient-to-br from-secondary/10 to-white dark:from-gray-900 dark:to-gray-900"
+        viewport={{ once: true, margin: "-200px" }}
+        className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-gray-900 dark:to-gray-900"
         id="contact"
       >
-        <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-12">
-            <div className="p-3 bg-gradient-to-br from-primary to-white rounded-xl">
-              <Phone className="w-8 h-8 text-primary" />
+        <div className="container mx-auto px-6">
+          <motion.div
+            className="flex items-center gap-4 mb-16 text-left"
+            variants={itemVariants}
+          >
+            <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
+              <Phone className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-3xl font-bold dark:text-gray-100 border-r-4 border-primary pr-4">
-              تواصل معنا
-            </h2>
-          </div>
-
-          <div className="max-w-2xl mx-auto">
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">تواصل معنا</h2>
+          </motion.div>
             <ContactForm />
-          </div>
         </div>
       </motion.section>
 

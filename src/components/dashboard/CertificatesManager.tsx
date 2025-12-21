@@ -7,25 +7,29 @@ import toast from "react-hot-toast";
 import { Trash2, Edit, X } from "lucide-react";
 import { motion } from "framer-motion";
 
-const certificateSchema = z.object({
+// Schema for both certificate and skill (same fields)
+const itemSchema = z.object({
   title: z.string().min(2, "العنوان يجب أن يكون حرفين على الأقل"),
   issuer: z.string().min(2, "الجهة المانحة يجب أن تكون حرفين على الأقل"),
   date: z.string().min(1, "التاريخ مطلوب"),
+  category: z.string().min(1, "الفئة مطلوبة"),
   image_url: z.string().url().optional(),
 });
 
-type Certificate = z.infer<typeof certificateSchema> & {
+type Item = z.infer<typeof itemSchema> & {
   id?: string;
   image_url: string;
 };
 
-export default function CertificatesManager() {
-  const [certificates, setCertificates] = React.useState<Certificate[]>([]);
+export default function ItemsManager() {
+  const [certificates, setCertificates] = React.useState<Item[]>([]);
+  const [skills, setSkills] = React.useState<Item[]>([]);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
   const [useFileUpload, setUseFileUpload] = React.useState(true);
   const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [itemType, setItemType] = React.useState<"certificate" | "skill">("certificate");
 
   const {
     register,
@@ -33,40 +37,41 @@ export default function CertificatesManager() {
     reset,
     watch,
     formState: { errors },
-  } = useForm<Certificate>({
-    resolver: zodResolver(certificateSchema),
+  } = useForm<Item>({
+    resolver: zodResolver(itemSchema),
   });
 
   const imageUrlValue = watch("image_url");
 
   React.useEffect(() => {
-    fetchCertificates();
+    fetchItems();
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, []);
 
-  const fetchCertificates = async () => {
+  const fetchItems = async () => {
     try {
-      const { data, error } = await supabase
-        .from("certificates")
-        .select("*")
-        .order("created_at", { ascending: false });
+      const { data: certData, error: certError } = await supabase.rpc("get_certificates");
+      if (certError) throw certError;
+      setCertificates(certData || []);
 
-      if (error) throw error;
-      setCertificates(data || []);
+      const { data: skillData, error: skillError } = await supabase.rpc("get_skills");
+      if (skillError) throw skillError;
+      setSkills(skillData || []);
     } catch (error) {
-      toast.error("حدث خطأ في جلب الشهادات");
+      toast.error("حدث خطأ في جلب البيانات");
     }
   };
 
-  const handleEditClick = (cert: Certificate) => {
-    setEditingId(cert.id!);
+  const handleEditClick = (item: Item, type: "certificate" | "skill") => {
+    setItemType(type);
+    setEditingId(item.id!);
     reset({
-      ...cert,
-      date: new Date(cert.date).toISOString().split("T")[0],
+      ...item,
+      date: new Date(item.date).toISOString().split("T")[0],
     });
-    setPreviewUrl(cert.image_url);
+    setPreviewUrl(item.image_url);
     setUseFileUpload(false);
   };
 
@@ -108,7 +113,7 @@ export default function CertificatesManager() {
       .substring(2, 15)}.${fileExt}`;
 
     const { error } = await supabase.storage
-      .from("certificate_images")
+      .from("certificate_images")  // You can change bucket if needed for skills
       .upload(fileName, selectedFile);
 
     if (error) throw error;
@@ -120,7 +125,7 @@ export default function CertificatesManager() {
     return publicUrl;
   };
 
-  const onSubmit = async (data: Certificate) => {
+  const onSubmit = async (data: Item) => {
     try {
       setIsUploading(true);
 
@@ -136,33 +141,43 @@ export default function CertificatesManager() {
         finalImageUrl = data.image_url;
       }
 
-      const certificateData = { ...data, image_url: finalImageUrl };
+      const itemData = { ...data, image_url: finalImageUrl };
 
       if (editingId) {
-        // تحديث الشهادة الموجودة
-        const { error } = await supabase
-          .from("certificates")
-          .update(certificateData)
-          .eq("id", editingId);
+        // Update based on type
+        const rpcFunction = itemType === "certificate" ? "update_certificate" : "update_skill";
+        const { error } = await supabase.rpc(rpcFunction, {
+          id: editingId,
+          title: itemData.title,
+          issuer: itemData.issuer,
+          date: itemData.date,
+          category: itemData.category,
+          image_url: itemData.image_url,
+        });
 
         if (error) throw error;
-        toast.success("تم تحديث الشهادة بنجاح");
+        toast.success(`تم تحديث ال${itemType === "certificate" ? "شهادة" : "مهارة"} بنجاح`);
       } else {
-        // إضافة شهادة جديدة
-        const { error } = await supabase
-          .from("certificates")
-          .insert([certificateData]);
+        // Insert based on type
+        const rpcFunction = itemType === "certificate" ? "insert_certificate" : "insert_skill";
+        const { error } = await supabase.rpc(rpcFunction, {
+          title: itemData.title,
+          issuer: itemData.issuer,
+          date: itemData.date,
+          category: itemData.category,
+          image_url: itemData.image_url,
+        });
         if (error) throw error;
-        toast.success("تم إضافة الشهادة بنجاح");
+        toast.success(`تم إضافة ال${itemType === "certificate" ? "شهادة" : "مهارة"} بنجاح`);
       }
 
       reset();
       setSelectedFile(null);
       setPreviewUrl(null);
       setEditingId(null);
-      await fetchCertificates();
+      await fetchItems();
     } catch (error) {
-      console.error("Error saving certificate:", error);
+      console.error("Error saving item:", error);
       toast.error(
         error instanceof Error ? error.message : "حدث خطأ غير متوقع أثناء الحفظ"
       );
@@ -171,18 +186,16 @@ export default function CertificatesManager() {
     }
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDelete = async (id: string, type: "certificate" | "skill") => {
     try {
-      const { error } = await supabase
-        .from("certificates")
-        .delete()
-        .eq("id", id);
+      const rpcFunction = type === "certificate" ? "delete_certificate" : "delete_skill";
+      const { error } = await supabase.rpc(rpcFunction, { id });
       if (error) throw error;
 
-      toast.success("تم حذف الشهادة بنجاح");
-      await fetchCertificates();
+      toast.success(`تم حذف ال${type === "certificate" ? "شهادة" : "مهارة"} بنجاح`);
+      await fetchItems();
     } catch (error) {
-      toast.error("حدث خطأ أثناء حذف الشهادة");
+      toast.error(`حدث خطأ أثناء حذف ال${type === "certificate" ? "شهادة" : "مهارة"}`);
     }
   };
 
@@ -195,13 +208,27 @@ export default function CertificatesManager() {
         className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8"
       >
         <h2 className="text-3xl font-bold mb-8 text-primary dark:text-white">
-          {editingId ? "تعديل الشهادة" : "إضافة شهادة جديدة"}
+          {editingId ? "تعديل" : "إضافة"} {itemType === "certificate" ? "شهادة" : "مهارة"}
         </h2>
+        <div className="mb-6">
+          <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
+            نوع العنصر
+          </label>
+          <select
+            value={itemType}
+            onChange={(e) => setItemType(e.target.value as "certificate" | "skill")}
+            disabled={!!editingId}  // Disable during edit
+            className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+          >
+            <option value="certificate">شهادة</option>
+            <option value="skill">مهارة</option>
+          </select>
+        </div>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                عنوان الشهادة
+                عنوان
               </label>
               <input
                 {...register("title")}
@@ -227,6 +254,22 @@ export default function CertificatesManager() {
               {errors.issuer && (
                 <p className="mt-1 text-sm text-red-600">
                   {errors.issuer.message}
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
+                الفئة
+              </label>
+              <input
+                {...register("category")}
+                type="text"
+                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+              />
+              {errors.category && (
+                <p className="mt-1 text-sm text-red-600">
+                  {errors.category.message}
                 </p>
               )}
             </div>
@@ -277,7 +320,7 @@ export default function CertificatesManager() {
             {useFileUpload ? (
               <div>
                 <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                  صورة الشهادة
+                  صورة
                 </label>
                 <input
                   type="file"
@@ -341,8 +384,8 @@ export default function CertificatesManager() {
                   ? "جاري التحديث..."
                   : "جاري الإضافة..."
                 : editingId
-                ? "تحديث الشهادة"
-                : "إضافة الشهادة"}
+                ? "تحديث"
+                : "إضافة"}
             </button>
 
             {editingId && (
@@ -399,14 +442,75 @@ export default function CertificatesManager() {
                   </p>
                   <div className="mt-4 flex gap-4">
                     <button
-                      onClick={() => handleEditClick(cert)}
+                      onClick={() => handleEditClick(cert, "certificate")}
                       className="text-primary hover:text-secondary flex items-center gap-1 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <Edit className="w-5 h-5" />
                       تعديل
                     </button>
                     <button
-                      onClick={() => handleDelete(cert.id!)}
+                      onClick={() => handleDelete(cert.id!, "certificate")}
+                      className="text-red-600 hover:text-red-700 flex items-center gap-1 dark:text-red-400 dark:hover:text-red-300"
+                    >
+                      <Trash2 className="w-5 h-5" />
+                      حذف
+                    </button>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+
+      {/* قسم عرض المهارات */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.4 }}
+        className="bg-white dark:bg-gray-800 rounded-xl shadow-lg"
+      >
+        <div className="p-8">
+          <h2 className="text-3xl font-bold mb-8 text-primary dark:text-white">
+            المهارات الحالية
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {skills.map((skill, index) => (
+              <motion.div
+                key={skill.id}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                className="bg-white dark:bg-gray-700 rounded-xl shadow-md overflow-hidden card-hover"
+              >
+                <div className="relative h-48">
+                  <img
+                    src={skill.image_url}
+                    alt={skill.title}
+                    className="w-full h-full object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
+                </div>
+                <div className="p-6">
+                  <h3 className="font-bold text-xl mb-2 text-gray-900 dark:text-white">
+                    {skill.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-2">
+                    {skill.issuer}
+                  </p>
+                  <p className="text-text text-sm dark:text-gray-300">
+                    {new Date(skill.date).toLocaleDateString("ar-EG")}
+                  </p>
+                  <div className="mt-4 flex gap-4">
+                    <button
+                      onClick={() => handleEditClick(skill, "skill")}
+                      className="text-primary hover:text-secondary flex items-center gap-1 dark:text-blue-400 dark:hover:text-blue-300"
+                    >
+                      <Edit className="w-5 h-5" />
+                      تعديل
+                    </button>
+                    <button
+                      onClick={() => handleDelete(skill.id!, "skill")}
                       className="text-red-600 hover:text-red-700 flex items-center gap-1 dark:text-red-400 dark:hover:text-red-300"
                     >
                       <Trash2 className="w-5 h-5" />

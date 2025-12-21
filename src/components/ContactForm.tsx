@@ -5,6 +5,8 @@ import { z } from "zod";
 import { supabase } from "../lib/supabase";
 import toast from "react-hot-toast";
 import emailjs from "@emailjs/browser";
+import { motion } from "framer-motion";
+import { User, Mail, MessageSquare, Send } from "lucide-react";
 
 // التحقق من صحة البيانات باستخدام Zod
 const contactSchema = z.object({
@@ -13,7 +15,7 @@ const contactSchema = z.object({
   message: z.string().min(10, "الرسالة يجب أن تكون 10 أحرف على الأقل"),
 });
 
-type ContactForm = z.infer<typeof contactSchema>;
+type ContactFormType = z.infer<typeof contactSchema>;
 
 export default function ContactForm() {
   const {
@@ -21,11 +23,11 @@ export default function ContactForm() {
     handleSubmit,
     reset,
     formState: { errors, isSubmitting },
-  } = useForm<ContactForm>({
+  } = useForm<ContactFormType>({
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = async (data: ContactForm) => {
+  const onSubmit = async (data: ContactFormType) => {
     try {
       // إدراج البيانات في Supabase
       const { error: supabaseError } = await supabase
@@ -40,7 +42,7 @@ export default function ContactForm() {
       // إعداد معاملات البريد الإلكتروني
       const emailParams = {
         from_name: data.name,
-        from_email: data.email,
+        user_email: data.email,
         to_email: "bakrcode446@gmail.com",
         message: data.message,
       };
@@ -63,76 +65,118 @@ export default function ContactForm() {
     }
   };
 
+  const inputVariants = {
+    focus: { scale: 1.02, borderColor: "var(--primary-color)" },
+    blur: { scale: 1, borderColor: "#d1d5db" },
+  };
+
   return (
-    <form
+    <motion.form
       onSubmit={handleSubmit(onSubmit)}
-      className="max-w-lg mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md"
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.8 }}
+      className="max-w-xl mx-auto p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-primary"
     >
-      <h2 className="text-2xl  font-bold text-center text-primary mb-4">
-        📩
+      <h2 className="text-3xl font-bold text-center text-primary mb-8 flex items-center justify-center gap-2">
+        <Send className="w-8 h-8" />
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
-          {" "}
           تواصل معنا
         </span>
       </h2>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* حقل الاسم */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <motion.div
+          className="relative"
+          variants={inputVariants}
+          whileFocus="focus"
+          animate="blur"
+        >
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
+            <User className="w-5 h-5 text-primary" />
             الاسم
           </label>
           <input
             {...register("name")}
             type="text"
-            className="w-full p-3 mt-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:focus:ring-primary"
+            className="w-full p-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:border-primary transition-all duration-300"
+            placeholder="أدخل اسمك"
           />
           {errors.name && (
-            <p className="text-red-600 text-sm mt-1">{errors.name.message}</p>
+            <p className="text-red-500 text-sm mt-2 animate-pulse">{errors.name.message}</p>
           )}
-        </div>
+        </motion.div>
 
         {/* حقل البريد الإلكتروني */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <motion.div
+          className="relative"
+          variants={inputVariants}
+          whileFocus="focus"
+          animate="blur"
+        >
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
+            <Mail className="w-5 h-5 text-primary" />
             البريد الإلكتروني
           </label>
           <input
             {...register("email")}
             type="email"
-            className="w-full p-3 mt-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-200 dark:focus:ring-primary"
+            className="w-full p-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:border-primary transition-all duration-300"
+            placeholder="أدخل بريدك الإلكتروني"
           />
           {errors.email && (
-            <p className="text-red-600 text-sm mt-1">{errors.email.message}</p>
+            <p className="text-red-500 text-sm mt-2 animate-pulse">{errors.email.message}</p>
           )}
-        </div>
+        </motion.div>
 
         {/* حقل الرسالة */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        <motion.div
+          className="relative"
+          variants={inputVariants}
+          whileFocus="focus"
+          animate="blur"
+        >
+          <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
+            <MessageSquare className="w-5 h-5 text-primary" />
             الرسالة
           </label>
           <textarea
             {...register("message")}
-            rows={4}
-            className="w-full p-3 mt-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm focus:border-primary focus:ring focus:ring-indigo-200 dark:focus:ring-primary"
+            rows={5}
+            className="w-full p-4 bg-gray-50 dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-xl shadow-inner focus:outline-none focus:border-primary transition-all duration-300"
+            placeholder="اكتب رسالتك هنا..."
           />
           {errors.message && (
-            <p className="text-red-600 text-sm mt-1">
-              {errors.message.message}
-            </p>
+            <p className="text-red-500 text-sm mt-2 animate-pulse">{errors.message.message}</p>
           )}
-        </div>
+        </motion.div>
 
         {/* زر الإرسال */}
-        <button
+        <motion.button
           type="submit"
           disabled={isSubmitting}
-          className="w-full py-3 text-white bg-gradient-to-r from-primary to-secondary rounded-md shadow-md transition-all duration-200 disabled:opacity-50"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          className="w-full py-4 text-white font-bold bg-gradient-to-r from-primary to-secondary rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {isSubmitting ? "⏳ جاري الإرسال..." : "📨 إرسال"}
-        </button>
+          {isSubmitting ? (
+            <>
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+              />
+              جاري الإرسال...
+            </>
+          ) : (
+            <>
+              <Send className="w-5 h-5" />
+              إرسال الرسالة
+            </>
+          )}
+        </motion.button>
       </div>
-    </form>
+    </motion.form>
   );
 }

@@ -13,20 +13,22 @@ import {
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 
-// مكوّن زر تبديل Dark Mode بتصميم محسّن
+/* ================= Dark Mode Toggle ================= */
 const DarkModeToggle = ({ darkMode, toggleDarkMode }) => {
   return (
     <motion.button
       onClick={toggleDarkMode}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className="relative inline-flex items-center w-20 h-10 overflow-hidden bg-gradient-to-r from-secondary to-primary dark:from-gray-700 dark:to-gray-900 rounded-full p-1 cursor-pointer focus:outline-none transition-all duration-300"
+      className="relative inline-flex items-center w-20 h-10 p-1 rounded-full
+                 bg-gradient-to-r from-secondary to-primary
+                 dark:from-gray-700 dark:to-gray-900"
     >
       <motion.div
-        // تقليل قيمة الإزاحة إلى 36px بدلاً من 40px لضمان بقاء المقبض داخل الحاوية
         animate={{ x: darkMode ? -36 : 0 }}
         transition={{ type: "spring", stiffness: 700, damping: 30 }}
-        className="w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow-lg flex items-center justify-center"
+        className="w-8 h-8 bg-white dark:bg-gray-800 rounded-full shadow
+                   flex items-center justify-center"
       >
         {darkMode ? (
           <Sun className="w-5 h-5 text-yellow-500" />
@@ -38,40 +40,27 @@ const DarkModeToggle = ({ darkMode, toggleDarkMode }) => {
   );
 };
 
+/* ================= Navbar ================= */
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  // قراءة حالة الـ Dark Mode من localStorage أو تعيين false بشكل افتراضي
   const [darkMode, setDarkMode] = useState(() => {
-    if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("darkMode");
-      return saved ? JSON.parse(saved) : false;
-    }
-    return false;
+    const saved = localStorage.getItem("darkMode");
+    return saved ? JSON.parse(saved) : false;
   });
 
-  // تغيير خلفية النافبار عند التمرير
+  /* Scroll Effect */
   useEffect(() => {
-    const handleScroll = () => {
-      setIsScrolled(window.scrollY > 20);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const onScroll = () => setIsScrolled(window.scrollY > 20);
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  // تفعيل Dark Mode على عنصر الـ <html> وتخزين القيمة في localStorage
+  /* Dark Mode */
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
+    document.documentElement.classList.toggle("dark", darkMode);
     localStorage.setItem("darkMode", JSON.stringify(darkMode));
   }, [darkMode]);
-
-  const toggleDarkMode = () => {
-    setDarkMode((prev) => !prev);
-  };
 
   const menuItems = [
     { href: "#about", icon: User, text: "من أنا" },
@@ -83,138 +72,152 @@ export default function Navbar() {
 
   const handleMobileClick = (hash) => (e) => {
     e.preventDefault();
-    const element = document.querySelector(hash);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
-    setTimeout(() => setIsOpen(false), 300);
+    const el = document.querySelector(hash);
+    el?.scrollIntoView({ behavior: "smooth" });
+    setTimeout(() => setIsOpen(false), 200);
   };
 
-  const navVariants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: { opacity: 1, y: 0 },
+  /* Animations */
+  const backdropVariants = {
+    hidden: { opacity: 0 },
+    visible: { opacity: 1 },
+    exit: { opacity: 0 },
+  };
+
+  const menuVariants = {
+    hidden: { x: "100%", opacity: 0 },
+    visible: {
+      x: 0,
+      opacity: 1,
+      transition: {
+        type: "spring",
+        stiffness: 80,
+        damping: 20,
+        when: "beforeChildren",
+        staggerChildren: 0.1,
+      },
+    },
+    exit: {
+      x: "100%",
+      opacity: 0,
+      transition: { duration: 0.3 },
+    },
+  };
+
+  const linkVariants = {
+    hidden: { x: 30, opacity: 0 },
+    visible: { x: 0, opacity: 1 },
   };
 
   return (
-    <motion.nav
-      initial="hidden"
-      animate="visible"
-      variants={navVariants}
-      transition={{ duration: 0.5 }}
-      className={`fixed w-full top-0 z-50 ${
-        isScrolled
-          ? "bg-white dark:bg-gray-900 shadow-lg backdrop-blur-sm bg-opacity-90"
-          : "bg-white dark:bg-gray-900 bg-opacity-80"
-      } transition-all duration-300`}
-    >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-20 items-center">
-          {/* الشعار */}
-          <Link to="/" className="flex items-center space-x-2 group">
-            <motion.img
+    <>
+      {/* ================= Desktop Navbar ================= */}
+      <motion.nav
+        initial={{ y: -40, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        className={`fixed top-0 w-full z-50 transition-all
+          ${isScrolled
+            ? "bg-white/90 dark:bg-gray-900/90 shadow backdrop-blur"
+            : "bg-white dark:bg-gray-900"
+          }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 h-20 flex items-center justify-between">
+          {/* Logo */}
+          <Link to="/" className="flex items-center gap-2">
+            <img
               src="https://i.pinimg.com/736x/20/88/7f/20887f916437267a4e5e5927affc3570.jpg"
-              alt="Logo"
-              className="h-12 w-12 rounded-full border-2 border-primary p-[1px] transition-all duration-300 group-hover:border-secondary group-hover:scale-105"
-              whileHover={{ rotate: 10 }}
-              loading="lazy"
+              className="w-12 h-12 rounded-full border-2 border-primary"
+              alt="logo"
             />
-            <span className="text-2xl font-bold bg-gradient-to-r from-secondary to-primary bg-clip-text text-transparent">
+            <span className="text-2xl font-bold bg-gradient-to-r
+                             from-secondary to-primary text-transparent bg-clip-text">
               أسناني
             </span>
           </Link>
 
-          {/* قائمة سطح المكتب */}
-          <div className="hidden md:flex items-center space-x-6">
-            {menuItems.map((item, index) => (
-              <motion.a
+          {/* Desktop Links */}
+          <div className="hidden md:flex items-center gap-2">
+            {menuItems.map((item) => (
+              <a
                 key={item.href}
                 href={item.href}
-                className="relative inline-block"
-                initial="rest"
-                whileHover="hover"
-                animate="rest"
-                transition={{ delay: index * 0.1 }}
-                variants={{
-                  rest: { scale: 1 },
-                  hover: { scale: 1.05 },
-                }}
+                className="nav-link flex items-center gap-2 px-4 py-2 rounded-full
+                           hover:bg-secondary/10 transition"
               >
-                <div className="flex items-center gap-2 px-4 py-2.5 rounded-full transition-all duration-300 hover:bg-secondary/10 dark:hover:bg-secondary-dark/10">
-                  <item.icon className="w-5 h-5 text-primary dark:text-primary transition-colors group-hover:text-secondary" />
-                  <span className="text-gray-900 dark:text-gray-100 group-hover:text-secondary font-medium text-sm">
-                    {item.text}
-                  </span>
-                </div>
-                <motion.span
-                  className="block h-[2px] bg-secondary dark:bg-secondary mt-1"
-                  variants={{
-                    rest: { width: 0 },
-                    hover: { width: "100%" },
-                  }}
-                  transition={{ duration: 0.3 }}
-                />
-              </motion.a>
+                <item.icon className="w-5 h-5 text-primary" />
+                <span className="font-medium">{item.text}</span>
+              </a>
             ))}
-            {/* زر تبديل الوضع الداكن */}
             <DarkModeToggle
               darkMode={darkMode}
-              toggleDarkMode={toggleDarkMode}
+              toggleDarkMode={() => setDarkMode((p) => !p)}
             />
           </div>
 
-          {/* قائمة الجوال */}
-          <div className="md:hidden flex items-center gap-2">
+          {/* Mobile Actions */}
+          <div className="md:hidden flex items-center gap-3">
             <DarkModeToggle
               darkMode={darkMode}
-              toggleDarkMode={toggleDarkMode}
+              toggleDarkMode={() => setDarkMode((p) => !p)}
             />
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 text-gray-900 dark:text-gray-100 hover:text-secondary rounded-lg transition-colors focus:outline-none"
-            >
-              {isOpen ? (
-                <X className="w-7 h-7" />
-              ) : (
-                <Menu className="w-7 h-7" />
-              )}
-            </motion.button>
+            <button onClick={() => setIsOpen(true)}>
+              <Menu size={28} />
+            </button>
           </div>
         </div>
-      </div>
+      </motion.nav>
 
-      {/* القائمة المتنقلة للجوال */}
+      {/* ================= Mobile Drawer ================= */}
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.3 }}
-            className="md:hidden bg-white dark:bg-gray-900/95 backdrop-blur-sm border-t border-secondary/10"
-          >
-            <div className="px-4 py-4 space-y-3">
-              {menuItems.map((item, index) => (
-                <motion.a
-                  key={item.href}
-                  href={item.href}
-                  className="flex items-center gap-3 px-4 py-3 rounded-xl bg-secondary/5 dark:bg-secondary-dark/5 hover:bg-secondary/10 dark:hover:bg-secondary-dark/10 transition-colors"
-                  initial={{ opacity: 0, x: 30 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 30 }}
-                  transition={{ delay: index * 0.1 }}
-                  onClick={handleMobileClick(item.href)}
-                >
-                  <item.icon className="w-5 h-5 text-primary dark:text-primary" />
-                  <span className="text-gray-900 dark:text-gray-100 font-medium">
+          <>
+            {/* Backdrop */}
+            <motion.div
+              className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40 md:hidden"
+              variants={backdropVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+              onClick={() => setIsOpen(false)}
+            />
+
+            {/* Drawer */}
+            <motion.aside
+              className="fixed top-0 right-0 w-3/4 h-full z-50 md:hidden
+                         bg-white dark:bg-gray-900 shadow-2xl
+                         rounded-l-2xl p-6 flex flex-col"
+              variants={menuVariants}
+              initial="hidden"
+              animate="visible"
+              exit="exit"
+            >
+              {/* Close */}
+              <button
+                onClick={() => setIsOpen(false)}
+                className="self-end mb-8"
+              >
+                <X size={26} />
+              </button>
+
+              {/* Links */}
+              <div className="flex flex-col gap-6">
+                {menuItems.map((item) => (
+                  <motion.a
+                    key={item.href}
+                    variants={linkVariants}
+                    href={item.href}
+                    onClick={handleMobileClick(item.href)}
+                    className="flex items-center gap-4 text-lg font-semibold"
+                  >
+                    <item.icon className="w-5 h-5 text-primary" />
                     {item.text}
-                  </span>
-                </motion.a>
-              ))}
-            </div>
-          </motion.div>
+                  </motion.a>
+                ))}
+              </div>
+            </motion.aside>
+          </>
         )}
       </AnimatePresence>
-    </motion.nav>
+    </>
   );
 }

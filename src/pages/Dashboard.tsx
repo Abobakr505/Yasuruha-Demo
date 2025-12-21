@@ -138,7 +138,7 @@ export default function Dashboard() {
   const menuItems = [
     { path: "/dashboard/theme", icon: Palette, text: "إدارة الألوان" },
     { path: "/dashboard/about", icon: User, text: "من أنا" },
-    { path: "/dashboard/certificates", icon: GraduationCap, text: "الشهادات" },
+    { path: "/dashboard/certificates", icon: GraduationCap, text: "الشهادات  و المهارات " },
     { path: "/dashboard/services", icon: Briefcase, text: "الخدمات" },
     { path: "/dashboard/portfolio", icon: Code, text: "الأعمال" },
     { path: "/dashboard/messages", icon: MessageSquare, text: "الرسائل" },
@@ -177,7 +177,7 @@ export default function Dashboard() {
               animate={{ x: 0 }}
               exit={{ x: -300 }}
               transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className={`w-72 h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl fixed md:relative z-40 ${
+              className={`w-72 min-h-screen bg-gradient-to-b from-white to-blue-50 dark:from-gray-800 dark:to-gray-900 shadow-2xl fixed md:relative z-40 ${
                 isMobile ? "inset-0" : ""
               }`}
             >
@@ -273,7 +273,7 @@ export default function Dashboard() {
                   animate={{ opacity: 1, y: 0 }}
                   className="max-w-4xl mx-auto mt-16"
                 >
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-blue-50 dark:border-gray-600">
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-lg border border-primary dark:border-gray-600">
                     <h1 className="text-4xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary mb-4 text-center leading-[1.5]">
                       مرحباً بك في لوحة التحكم
                     </h1>

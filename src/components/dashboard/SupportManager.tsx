@@ -176,7 +176,7 @@ const SupportManager = () => {
                     الهاتف
                   </p>
                   <p className="text-gray-600 dark:text-gray-400">
-                    +20 10 80115240
+                    +20115818874
                   </p>
                 </div>
               </motion.div>
@@ -193,7 +193,7 @@ const SupportManager = () => {
                     الواتس اب
                   </p>
                   <p className="text-gray-600 dark:text-gray-400">
-                    +20 10 80115240
+                    +20115818874
                   </p>
                 </div>
               </motion.div>
@@ -210,7 +210,7 @@ const SupportManager = () => {
                     البريد الإلكتروني
                   </p>
                   <p className="text-gray-600 dark:text-gray-400">
-                    support@tawrr.com
+                    yasuruha1@gmail.com
                   </p>
                 </div>
               </motion.div>
@@ -227,10 +227,10 @@ const SupportManager = () => {
                     الموقع الإلكتروني
                   </p>
                   <a
-                    href="https://tawrr.com"
+                    href="https://yasuruha.netlify.app/"
                     className="text-primary hover:underline dark:text-blue-400"
                   >
-                    www.tawrr.com
+                    https://yasuruha.netlify.app/
                   </a>
                 </div>
               </motion.div>
@@ -247,7 +247,7 @@ const SupportManager = () => {
                     العنوان
                   </p>
                   <p className="text-gray-600 dark:text-gray-400">
-                    مصر - القاهرة - المعادي
+                   سوهاج , مصر 
                   </p>
                 </div>
               </motion.div>
@@ -272,7 +272,7 @@ const SupportManager = () => {
                   ما هي أوقات الدعم الفني؟
                 </p>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  متواجدون 24/7 ساعة
+                  متواجدون 24/7 يوميا
                 </p>
               </div>
             </div>
