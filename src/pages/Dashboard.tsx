@@ -203,7 +203,7 @@ export default function Dashboard() {
                 )}
               </div>
 
-              <nav className="mt-6 px-3">
+              <nav className="mt-2 px-3">
                 {menuItems.map((item, index) => (
                   <motion.div
                     key={item.path}
@@ -216,7 +216,7 @@ export default function Dashboard() {
                       onClick={() => setIsOpen(false)}
                       className={`flex items-center gap-3 px-5 py-3.5 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary rounded-xl transition-all group border border-transparent hover:border-primary ${
                         location.pathname === item.path
-                          ? "bg-white dark:bg-gray-900 text-primary shadow-md border-blue-100"
+                          ? "bg-white dark:bg-gray-900 text-primary dark:text-secondary shadow-md border-blue-100"
                           : ""
                       }`}
                     >
@@ -224,22 +224,22 @@ export default function Dashboard() {
                         className={`w-5 h-5 ${
                           location.pathname === item.path
                             ? "text-primary"
-                            : "text-gray-400 group-hover:text-primary"
+                            : "text-gray-400 group-hover:text-primary group-hover:dark:text-secondary"
                         }`}
                       />
                       <span className="font-medium text-sm">{item.text}</span>
                     </Link>
                   </motion.div>
                 ))}
-                <div className="mt-4 pr-4">
+                <div className="mt-2 pr-4">
                   <DarkModeToggle />
                 </div>
               </nav>
 
-              <div className="absolute bottom-0 w-full p-6 border-t border-blue-100 dark:border-gray-600">
+              <div className="absolute bottom-0 w-full p-4 border-t border-blue-100 dark:border-gray-600">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-gray-800 flex items-center justify-center">
-                    <User className="w-5 h-5 text-primary" />
+                    <User className="w-5 h-5 text-primary dark:text-secondary " />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-gray-700 dark:text-gray-200">
@@ -247,7 +247,7 @@ export default function Dashboard() {
                     </p>
                     <button
                       onClick={handleLogout}
-                      className="text-xs text-primary hover:underline"
+                      className="text-xs text-primary dark:text-secondary hover:underline"
                     >
                       تسجيل الخروج
                     </button>
@@ -289,7 +289,7 @@ export default function Dashboard() {
                           to={item.path}
                           className="bg-blue-50 dark:bg-gray-900 hover:bg-blue-100 dark:hover:bg-gray-700 p-4 rounded-xl text-center transition-colors"
                         >
-                          <item.icon className="w-8 h-8 text-primary mx-auto mb-2" />
+                          <item.icon className="w-8 h-8 text-primary dark:text-secondary mx-auto mb-2" />
                           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
                             {item.text}
                           </span>

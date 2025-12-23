@@ -100,11 +100,13 @@ img {
   height: 5px;
   bottom: -3px; /* المسافة بين النص والخط */
   left: 0; /* يبدأ من اليمين (مع RTL) */
-  background-color: var(--primary-color); /* استبدل بلون teeverse أو لون آخر */
   transition: width 0.3s ease-in-out; /* أنيميشن سلس للعرض */
   border-radius: 1rem; /* حواف مستديرة للخط */
 }
 
+.nav-link::after {
+  @apply bg-primary dark:bg-secondary 
+}
 .nav-link:hover::after {
   width: 100%; /* يمتد الخط ليغطي كامل عرض النص */
   right: 0; /* ينتهي عند اليسار */

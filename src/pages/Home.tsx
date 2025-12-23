@@ -53,10 +53,10 @@ const ScrollToTop = () => {
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.8 }}
-          whileHover={{ scale: 1.1, rotate: 180 }}
+          whileHover={{ scale: 1.1 , rotate : 360 }}
           whileTap={{ scale: 0.9 }}
           onClick={scrollToTop}
-          className="fixed bottom-8 left-8 bg-primary text-white p-4 rounded-full shadow-2xl hover:shadow-primary/50 transition-all duration-300 z-50 border-2 border-white dark:border-gray-800"
+          className="fixed bottom-8 left-8 bg-primary dark:bg-secondary text-white p-4 rounded-full shadow-2xl hover:shadow-primary/50 transition-all duration-300 z-50 border-2 border-secondary dark:border-primary"
           aria-label="التمرير إلى الأعلى"
         >
           <ArrowUp className="w-6 h-6" />
@@ -132,7 +132,7 @@ export default function Home() {
   if (loading)
     return (
       <div className="h-screen flex justify-center items-center flex-col gap-4 text-secondary bg-gray-50 dark:bg-gray-900 ">
-          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin "></div>
+          <div className="w-12 h-12 border-4 border-primary dark:border-secondary border-t-transparent rounded-full animate-spin "></div>
        ... جاري التحميل 
       </div>
     );
@@ -210,7 +210,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <User className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">من أنا ؟</h2> {/* border-l لليسار */}
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary dark:border-secondary pl-5 pr-5 rounded-lg">من أنا ؟</h2> {/* border-l لليسار */}
           </motion.div>
 
           {aboutData && (
@@ -220,7 +220,7 @@ export default function Home() {
               <motion.div
                 variants={itemVariants}
                 className="relative h-72 sm:h-80 md:h-[28rem] rounded-3xl 
-                           overflow-hidden shadow-2xl border-4 border-primary"
+                           overflow-hidden shadow-2xl border-4 border-primary dark:border-secondary"
                 whileHover={{ rotate: 2 }}
               >
                 <img
@@ -297,7 +297,7 @@ export default function Home() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-200px" }}
-        className="py-24 bg-gradient-to-br from-secondary/10 to-primary/10 dark:from-secondary/20 dark:to-primary/20"
+        className="py-24"
         id="skills"
       >
         <div className="container mx-auto px-6">
@@ -308,7 +308,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-secondary to-primary rounded-2xl shadow-xl">
               <Code className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary dark:border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
           </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
             {skills.map((skill) => (
@@ -340,7 +340,7 @@ export default function Home() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-200px" }}
-        className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-primary/20 dark:to-secondary/20"
+        className="py-24 "
         id="certificates"
       >
         <div className="container mx-auto px-6">
@@ -351,7 +351,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <GraduationCap className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">الشهادات</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary pl-5 pr-5 rounded-lg">الشهادات</h2>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {certificates.map((cert) => (
@@ -359,7 +359,7 @@ export default function Home() {
                 key={cert.id}
                 variants={itemVariants}
                 whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
-                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-primary"
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-primary dark:border-secondary"
               >
                 <div className="relative h-56 overflow-hidden">
                   <motion.img
@@ -404,7 +404,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <Briefcase className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">خدماتي </h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary pl-5 pr-5 rounded-lg">خدماتي </h2>
           </motion.div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-10">
             {services.map((service) => (
@@ -412,7 +412,7 @@ export default function Home() {
                 key={service.id}
                 variants={itemVariants}
                 whileHover={{ scale: 1.08, y: -15, boxShadow: "0px 15px 40px rgba(0,0,0,0.15)" }}
-                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 text-center border border-primary overflow-hidden"
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl p-8 text-center border border-primary dark:border-secondary overflow-hidden"
               >
                 <motion.div
                   className="mb-8 flex justify-center"
@@ -459,7 +459,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <Stethoscope className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">أعمالي</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary pl-5 pr-5 rounded-lg">أعمالي</h2>
           </motion.div>
           {projects.length === 0 ? (
             <p className="text-center text-gray-700 dark:text-gray-300 text-2xl py-16 font-semibold">لا توجد مشاريع متاحة حالياً</p>
@@ -520,7 +520,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <Phone className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">تواصل معنا</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary pl-5 pr-5 rounded-lg">تواصل معنا</h2>
           </motion.div>
             <ContactForm />
         </div>

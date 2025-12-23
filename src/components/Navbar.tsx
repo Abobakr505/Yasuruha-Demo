@@ -146,7 +146,7 @@ export default function Navbar() {
                 className="nav-link flex items-center gap-2 px-4 py-2 rounded-full
                            hover:bg-secondary/10 transition"
               >
-                <item.icon className="w-5 h-5 text-primary" />
+                <item.icon className="w-5 h-5 text-primary dark:text-secondary" />
                 <span className="font-medium">{item.text}</span>
               </a>
             ))}
@@ -162,7 +162,7 @@ export default function Navbar() {
               darkMode={darkMode}
               toggleDarkMode={() => setDarkMode((p) => !p)}
             />
-            <button className="p-2 bg-secondary text-white rounded-lg hover:scale-90 transition-all duration-300" onClick={() => setIsOpen(true)}>
+            <button className="p-2 bg-primary dark:bg-secondary text-white rounded-lg hover:scale-90 transition-all duration-300" onClick={() => setIsOpen(true)}>
               <Menu size={30} />
             </button>
           </div>
@@ -211,7 +211,7 @@ export default function Navbar() {
                     onClick={handleMobileClick(item.href)}
                     className="flex items-center gap-4 text-lg font-semibold"
                   >
-                    <item.icon className="w-5 h-5 text-primary" />
+                    <item.icon className="w-5 h-5 text-primary dark:text-secondary"  />
                     {item.text}
                   </motion.a>
                 ))}
