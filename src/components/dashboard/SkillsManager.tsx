@@ -116,11 +116,11 @@ export default function SkillsManager() {
       const itemData = { ...data, image_url: finalImageUrl };
       if (editingId) {
         const { error } = await supabase.rpc("update_skill", {
-          id: editingId,
-          title: itemData.title,
-          image_url: itemData.image_url,
-          // أزل الحقول الأخرى إذا كان الـ RPC يتوقعها، أو قم بتعديل الـ RPC في Supabase
-        });
+  p_id: editingId,
+  p_title: itemData.title,
+  p_image_url: itemData.image_url,
+});
+
         if (error) throw error;
         toast.success("تم تحديث المهارة بنجاح");
       } else {

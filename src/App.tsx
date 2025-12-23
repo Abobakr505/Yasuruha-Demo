@@ -6,14 +6,14 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
-import CopyProtection from "./ui/CopyProtection";
+// import CopyProtection from "./ui/CopyProtection";
 import NotFound from "./pages/NotFound";
 
 function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <CopyProtection/>
+        {/* <CopyProtection/> */}
         <Toaster position="top-center" />
         <Routes>
           <Route path="/" element={<Home />} />
