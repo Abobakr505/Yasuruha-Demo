@@ -210,7 +210,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <User className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary dark:border-secondary pl-5 pr-5 rounded-lg">من أنا ؟</h2> {/* border-l لليسار */}
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary  pl-5 pr-5 rounded-lg">من أنا ؟</h2> {/* border-l لليسار */}
           </motion.div>
 
           {aboutData && (
@@ -372,10 +372,10 @@ export default function Home() {
                   />
                 </div>
                 <div className="p-8 text-left">
-                  <h3 className="text-2xl font-bold mb-3 text-primary">{cert.title}</h3>
-                  <p className="text-secondary text-base font-medium mb-4">{cert.issuer}</p>
+                  <h3 className="text-2xl font-bold mb-3 text-primary dark:text-secondary">{cert.title}</h3>
+                  <p className="text-gray-700 dark:text-gray-300 text-base font-medium mb-4">{cert.issuer}</p>
                   <div className="flex items-center justify-between text-sm">
-                    <span className="bg-primary/20 text-primary px-4 py-2 rounded-full font-semibold">{cert.category}</span>
+                    <span className="bg-primary/20 text-primary dark:text-secondary px-4 py-2 rounded-full font-semibold">{cert.category}</span>
                     <span className="text-gray-600 dark:text-gray-400">{new Date(cert.date).toLocaleDateString("ar")}</span>
                   </div>
                 </div>
@@ -393,7 +393,7 @@ export default function Home() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-150px" }}
-        className="py-28 bg-gradient-to-b from-white to-primary/10 dark:from-gray-900 dark:to-primary/20"
+        className="py-28"
         id="services"
       >
         <div className="container mx-auto px-6">
@@ -422,7 +422,7 @@ export default function Home() {
                 >
                   {service.icon.startsWith("<svg") ? (
                     <div
-                      className="w-20 h-20 p-5 bg-gradient-to-br from-primary/30 to-secondary/30 rounded-full shadow-lg"
+                      className="w-20 h-20 p-5  rounded-full shadow-lg"
                       dangerouslySetInnerHTML={{ __html: service.icon }}
                     />
                   ) : (
@@ -483,13 +483,13 @@ export default function Home() {
                     />
                   </div>
                   <div className="p-8 text-left">
-                    <h3 className="text-2xl font-bold mb-4 text-primary">{project.title}</h3>
+                    <h3 className="text-2xl font-bold mb-4 text-primary dark:text-secondary">{project.title}</h3>
                     <p className="text-gray-700 dark:text-gray-300 text-lg mb-6 leading-relaxed">{project.description}</p>
                     <motion.a
                       href={project.link}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-8 py-4 bg-primary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all duration-300 font-semibold"
+                      className="flex items-center gap-3 px-8 py-4 bg-primary dark:bg-secondary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all duration-300 font-semibold"
                       whileHover={{ scale: 1.05 }}
                     >
                       <ExternalLink className="w-5 h-5" />
@@ -509,7 +509,7 @@ export default function Home() {
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-200px" }}
-        className="py-24 bg-gradient-to-br from-primary/10 to-secondary/10 dark:from-gray-900 dark:to-gray-900"
+        className="py-24 "
         id="contact"
       >
         <div className="container mx-auto px-6">
@@ -520,7 +520,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <Phone className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">تواصل معنا</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary pl-5 pr-5 rounded-lg">تواصل معنا</h2>
           </motion.div>
             <ContactForm />
         </div>

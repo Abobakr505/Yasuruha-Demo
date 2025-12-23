@@ -76,9 +76,9 @@ export default function ContactForm() {
       initial={{ opacity: 0, y: 50 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.8 }}
-      className="max-w-xl mx-auto p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-primary"
+      className="max-w-xl mx-auto p-8 bg-white dark:bg-gray-900 rounded-2xl shadow-2xl border border-primary dark:border-secondary"
     >
-      <h2 className="text-3xl font-bold text-center text-primary mb-8 flex items-center justify-center gap-2">
+      <h2 className="text-3xl font-bold text-center text-primary dark:text-secondary mb-8 flex items-center justify-center gap-2">
         <Send className="w-8 h-8" />
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-secondary">
           تواصل معي
@@ -94,7 +94,7 @@ export default function ContactForm() {
           animate="blur"
         >
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
-            <User className="w-5 h-5 text-primary" />
+            <User className="w-5 h-5 text-primary dark:text-secondary" />
             الاسم
           </label>
           <input
@@ -116,7 +116,7 @@ export default function ContactForm() {
           animate="blur"
         >
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
-            <Mail className="w-5 h-5 text-primary" />
+            <Mail className="w-5 h-5 text-primary dark:text-secondary" />
             البريد الإلكتروني
           </label>
           <input
@@ -138,7 +138,7 @@ export default function ContactForm() {
           animate="blur"
         >
           <label className="block text-sm font-semibold text-gray-700 dark:text-gray-200 mb-2 flex items-center gap-2">
-            <MessageSquare className="w-5 h-5 text-primary" />
+            <MessageSquare className="w-5 h-5 text-primary dark:text-secondary" />
             الرسالة
           </label>
           <textarea
