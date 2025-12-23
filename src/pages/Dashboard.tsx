@@ -214,7 +214,7 @@ export default function Dashboard() {
                     <Link
                       to={item.path}
                       onClick={() => setIsOpen(false)}
-                      className={`flex items-center gap-3 px-5 py-3.5 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary rounded-xl transition-all group border border-transparent hover:border-primary ${
+                      className={`flex items-center gap-3 px-5 py-3.5 text-gray-600 dark:text-gray-300 hover:bg-white dark:hover:bg-gray-800 hover:text-primary rounded-xl transition-all group border border-transparent hover:border-primary hover:dark:border-secondary  ${
                         location.pathname === item.path
                           ? "bg-white dark:bg-gray-900 text-primary dark:text-secondary shadow-md border-blue-100"
                           : ""

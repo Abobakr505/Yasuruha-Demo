@@ -520,7 +520,7 @@ export default function Home() {
             <div className="p-4 bg-gradient-to-br from-primary to-secondary rounded-2xl shadow-xl">
               <Phone className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary pl-5 pr-5 rounded-lg">تواصل معنا</h2>
+            <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary pl-5 pr-5 rounded-lg">تواصل معنا</h2>
           </motion.div>
             <ContactForm />
         </div>
