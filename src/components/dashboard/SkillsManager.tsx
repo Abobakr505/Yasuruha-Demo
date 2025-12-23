@@ -96,7 +96,7 @@ export default function SkillsManager() {
       .from("skills_images") // يمكن تغيير البكيت إذا لزم الأمر
       .upload(fileName, selectedFile);
     if (error) throw error;
-    const { data: { publicUrl } } = supabase.storage.from("certificate_images").getPublicUrl(fileName);
+    const { data: { publicUrl } } = supabase.storage.from("skills_images").getPublicUrl(fileName);
     return publicUrl;
   };
 
