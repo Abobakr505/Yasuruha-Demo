@@ -119,7 +119,7 @@ export default function Footer() {
             >
               <img
                 src="https://i.postimg.cc/9QLZ03rg/icon.png"
-                alt="Tawrr"
+                alt="Yasuruha"
                 className="h-7 w-7"
               />
               <span className="font-semibold text-[#4ce19e]"> يسِّرها</span>
