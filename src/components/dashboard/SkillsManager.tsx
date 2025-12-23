@@ -93,7 +93,7 @@ export default function SkillsManager() {
     const fileExt = selectedFile.name.split(".").pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
     const { error } = await supabase.storage
-      .from("certificate_images") // يمكن تغيير البكيت إذا لزم الأمر
+      .from("skills_images") // يمكن تغيير البكيت إذا لزم الأمر
       .upload(fileName, selectedFile);
     if (error) throw error;
     const { data: { publicUrl } } = supabase.storage.from("certificate_images").getPublicUrl(fileName);
