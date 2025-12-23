@@ -44,7 +44,8 @@ export default function Footer() {
             <ul className="space-y-4 text-lg">
               {[
                 { name: "من أنا", href: "#about" },
-                { name: "المهارات والشهادات", href: "#skills" },
+                { name: "المهارات", href: "#skills" },
+                { name: "الشهادات", href: "#certificates" },
                 { name: "خدماتي", href: "#services" },
                 { name: "أعمالي", href: "#portfolio" },
                 { name: "تواصل معي", href: "#contact" },
