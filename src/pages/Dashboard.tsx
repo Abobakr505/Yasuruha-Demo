@@ -27,7 +27,7 @@ import PortfolioManager from "../components/dashboard/PortfolioManager";
 import SupportManager from "../components/dashboard/SupportManager";
 import AboutManager from "../components/dashboard/AboutManager";
 import ThemeManager from "../components/dashboard/ThemeManager";
-import SkillsManager from "../components/Dashboard/SkillsManager";
+import SkillsManager from "../components/dashboard/SkillsManager";
 
 const applyThemeColors = async () => {
   try {
