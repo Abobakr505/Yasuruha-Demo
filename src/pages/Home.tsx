@@ -17,7 +17,7 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import ContactForm from "../components/ContactForm";
 import { supabase } from "../lib/supabase";
-import img from '../images/home.webp';
+import img from '../../public/assets/images/home.webp';
 
 // دالة لجلب إعدادات الألوان من Supabase وتطبيقها على متغيرات CSS
 const applyThemeColors = async () => {
@@ -131,8 +131,9 @@ export default function Home() {
 
   if (loading)
     return (
-      <div className="h-screen flex justify-center items-center bg-gray-50 dark:bg-gray-900">
-        <l-cardio size="150" stroke="5" speed="0.6" color="var(--primary-color)"></l-cardio>
+      <div className="h-screen flex justify-center items-center flex-col gap-4 text-secondary bg-gray-50 dark:bg-gray-900 ">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin "></div>
+       ... جاري التحميل 
       </div>
     );
 
@@ -309,32 +310,25 @@ export default function Home() {
             </div>
             <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-secondary pl-5 pr-5 rounded-lg">المهارات</h2>
           </motion.div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-8">
             {skills.map((skill) => (
               <motion.div
                 key={skill.id}
                 variants={itemVariants}
-                whileHover={{ scale: 1.05, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
-                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-secondary"
+                whileHover={{ scale: 1.1, rotate: 3, boxShadow: "0px 10px 30px rgba(0,0,0,0.1)" }}
+                className="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl overflow-hidden border border-secondary flex flex-col items-center p-6"
               >
-                <div className="relative h-56 overflow-hidden">
+                <div className="relative w-24 h-24 mb-4 overflow-hidden rounded-full border-2 border-secondary">
                   <motion.img
                     src={skill.image_url}
                     alt={skill.title}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain"
                     initial={{ scale: 1.1 }}
                     whileHover={{ scale: 1.2 }}
                     transition={{ duration: 0.4 }}
                   />
                 </div>
-                <div className="p-8 text-left">
-                  <h3 className="text-2xl font-bold mb-3 text-secondary">{skill.title}</h3>
-                  <p className="text-primary text-base font-medium mb-4">{skill.issuer}</p>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="bg-secondary/20 text-secondary px-4 py-2 rounded-full font-semibold">{skill.category}</span>
-                    <span className="text-gray-600 dark:text-gray-400">{new Date(skill.date).toLocaleDateString("ar")}</span>
-                  </div>
-                </div>
+                <h3 className="text-xl font-bold text-secondary text-center">{skill.title}</h3>
               </motion.div>
             ))}
           </div>

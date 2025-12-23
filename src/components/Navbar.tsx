@@ -9,6 +9,7 @@ import {
   User,
   Sun,
   Moon,
+  Code,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -64,7 +65,8 @@ export default function Navbar() {
 
   const menuItems = [
     { href: "#about", icon: User, text: "من أنا" },
-    { href: "#skills", icon: GraduationCap, text: "المهارات والشهادات" },
+    { href: "#skills", icon: Code, text: "المهارات " },
+    { href: "#certificates", icon: GraduationCap, text: " الشهادات" },
     { href: "#services", icon: Briefcase, text: "خدماتي" },
     { href: "#portfolio", icon: Award, text: "أعمالي" },
     { href: "#contact", icon: Phone, text: "تواصل معي" },
@@ -160,12 +162,12 @@ export default function Navbar() {
               darkMode={darkMode}
               toggleDarkMode={() => setDarkMode((p) => !p)}
             />
-            <button onClick={() => setIsOpen(true)}>
-              <Menu size={28} />
+            <button className="p-2 bg-secondary text-white rounded-lg hover:scale-90 transition-all duration-300" onClick={() => setIsOpen(true)}>
+              <Menu size={30} />
             </button>
           </div>
         </div>
-      </motion.nav>
+      </motion.nav> 
 
       {/* ================= Mobile Drawer ================= */}
       <AnimatePresence>

@@ -1,4 +1,4 @@
-// CertificatesManager.tsx
+// SkillsManager.tsx
 import React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -8,21 +8,18 @@ import toast from "react-hot-toast";
 import { Trash2, Edit, X } from "lucide-react";
 import { motion } from "framer-motion";
 
-const certificateSchema = z.object({
-  title: z.string().min(2, "العنوان يجب أن يكون حرفين على الأقل"),
-  issuer: z.string().min(2, "الجهة المانحة يجب أن تكون حرفين على الأقل"),
-  date: z.string().min(1, "التاريخ مطلوب"),
-  category: z.string().min(1, "الفئة مطلوبة"),
+const skillSchema = z.object({
+  title: z.string().min(2, "الاسم يجب أن يكون حرفين على الأقل"),
   image_url: z.string().url().optional(),
 });
 
-type Certificate = z.infer<typeof certificateSchema> & {
+type Skill = z.infer<typeof skillSchema> & {
   id?: string;
   image_url: string;
 };
 
-export default function CertificatesManager() {
-  const [certificates, setCertificates] = React.useState<Certificate[]>([]);
+export default function SkillsManager() {
+  const [skills, setSkills] = React.useState<Skill[]>([]);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
   const [isUploading, setIsUploading] = React.useState(false);
@@ -35,36 +32,33 @@ export default function CertificatesManager() {
     reset,
     watch,
     formState: { errors },
-  } = useForm<Certificate>({
-    resolver: zodResolver(certificateSchema),
+  } = useForm<Skill>({
+    resolver: zodResolver(skillSchema),
   });
 
   const imageUrlValue = watch("image_url");
 
   React.useEffect(() => {
-    fetchCertificates();
+    fetchSkills();
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
     };
   }, []);
 
-  const fetchCertificates = async () => {
+  const fetchSkills = async () => {
     try {
-      const { data, error } = await supabase.rpc("get_certificates");
+      const { data, error } = await supabase.rpc("get_skills");
       if (error) throw error;
-      setCertificates(data || []);
+      setSkills(data || []);
     } catch (error) {
-      toast.error("حدث خطأ في جلب الشهادات");
+      toast.error("حدث خطأ في جلب المهارات");
     }
   };
 
-  const handleEditClick = (cert: Certificate) => {
-    setEditingId(cert.id!);
-    reset({
-      ...cert,
-      date: new Date(cert.date).toISOString().split("T")[0],
-    });
-    setPreviewUrl(cert.image_url);
+  const handleEditClick = (skill: Skill) => {
+    setEditingId(skill.id!);
+    reset(skill);
+    setPreviewUrl(skill.image_url);
     setUseFileUpload(false);
   };
 
@@ -84,7 +78,7 @@ export default function CertificatesManager() {
       return;
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("حجم الصورة يجب ألا يتجاوز 5 ميجابايت");
+      toast.error("حجم الأيقونة يجب ألا يتجاوز 5 ميجابايت");
       return;
     }
     setSelectedFile(file);
@@ -94,19 +88,19 @@ export default function CertificatesManager() {
   const uploadImage = async () => {
     if (!selectedFile) {
       if (editingId) return previewUrl;
-      throw new Error("لم يتم اختيار صورة");
+      throw new Error("لم يتم اختيار أيقونة");
     }
     const fileExt = selectedFile.name.split(".").pop();
     const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
     const { error } = await supabase.storage
-      .from("certificate_images")
+      .from("certificate_images") // يمكن تغيير البكيت إذا لزم الأمر
       .upload(fileName, selectedFile);
     if (error) throw error;
     const { data: { publicUrl } } = supabase.storage.from("certificate_images").getPublicUrl(fileName);
     return publicUrl;
   };
 
-  const onSubmit = async (data: Certificate) => {
+  const onSubmit = async (data: Skill) => {
     try {
       setIsUploading(true);
       let finalImageUrl = "";
@@ -114,41 +108,37 @@ export default function CertificatesManager() {
         finalImageUrl = await uploadImage();
       } else {
         if (!data.image_url) {
-          toast.error("الرجاء إدخال رابط الصورة");
+          toast.error("الرجاء إدخال رابط الأيقونة");
           return;
         }
         finalImageUrl = data.image_url;
       }
       const itemData = { ...data, image_url: finalImageUrl };
       if (editingId) {
-        const { error } = await supabase.rpc("update_certificate", {
+        const { error } = await supabase.rpc("update_skill", {
           id: editingId,
           title: itemData.title,
-          issuer: itemData.issuer,
-          date: itemData.date,
-          category: itemData.category,
           image_url: itemData.image_url,
+          // أزل الحقول الأخرى إذا كان الـ RPC يتوقعها، أو قم بتعديل الـ RPC في Supabase
         });
         if (error) throw error;
-        toast.success("تم تحديث الشهادة بنجاح");
+        toast.success("تم تحديث المهارة بنجاح");
       } else {
-        const { error } = await supabase.rpc("insert_certificate", {
+        const { error } = await supabase.rpc("insert_skill", {
           title: itemData.title,
-          issuer: itemData.issuer,
-          date: itemData.date,
-          category: itemData.category,
           image_url: itemData.image_url,
+          // أزل الحقول الأخرى
         });
         if (error) throw error;
-        toast.success("تم إضافة الشهادة بنجاح");
+        toast.success("تم إضافة المهارة بنجاح");
       }
       reset();
       setSelectedFile(null);
       setPreviewUrl(null);
       setEditingId(null);
-      await fetchCertificates();
+      await fetchSkills();
     } catch (error) {
-      console.error("Error saving certificate:", error);
+      console.error("Error saving skill:", error);
       toast.error(error instanceof Error ? error.message : "حدث خطأ غير متوقع أثناء الحفظ");
     } finally {
       setIsUploading(false);
@@ -157,72 +147,37 @@ export default function CertificatesManager() {
 
   const handleDelete = async (id: string) => {
     try {
-      const { error } = await supabase.rpc("delete_certificate", { id });
+      const { error } = await supabase.rpc("delete_skill", { id });
       if (error) throw error;
-      toast.success("تم حذف الشهادة بنجاح");
-      await fetchCertificates();
+      toast.success("تم حذف المهارة بنجاح");
+      await fetchSkills();
     } catch (error) {
-      toast.error("حدث خطأ أثناء حذف الشهادة");
+      toast.error("حدث خطأ أثناء حذف المهارة");
     }
   };
 
   return (
     <div className="space-y-8">
-      {/* قسم النموذج للشهادات */}
+      {/* قسم النموذج للمهارات */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-8"
       >
         <h2 className="text-3xl font-bold mb-8 text-primary dark:text-white">
-          {editingId ? "تعديل" : "إضافة"} شهادة
+          {editingId ? "تعديل" : "إضافة"} مهارة
         </h2>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                عنوان
-              </label>
-              <input
-                {...register("title")}
-                type="text"
-                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                الجهة المانحة
-              </label>
-              <input
-                {...register("issuer")}
-                type="text"
-                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              {errors.issuer && <p className="mt-1 text-sm text-red-600">{errors.issuer.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                الفئة
-              </label>
-              <input
-                {...register("category")}
-                type="text"
-                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              {errors.category && <p className="mt-1 text-sm text-red-600">{errors.category.message}</p>}
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                تاريخ الحصول
-              </label>
-              <input
-                {...register("date")}
-                type="date"
-                className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
-              {errors.date && <p className="mt-1 text-sm text-red-600">{errors.date.message}</p>}
-            </div>
+          <div>
+            <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
+              الاسم
+            </label>
+            <input
+              {...register("title")}
+              type="text"
+              className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            />
+            {errors.title && <p className="mt-1 text-sm text-red-600">{errors.title.message}</p>}
           </div>
           <div className="space-y-4">
             <div className="flex gap-4">
@@ -231,7 +186,7 @@ export default function CertificatesManager() {
                 onClick={() => setUseFileUpload(true)}
                 className={`px-4 py-2 rounded-lg ${useFileUpload ? "bg-primary text-white" : "bg-gray-100 text-text dark:bg-gray-600 dark:text-gray-200"}`}
               >
-                رفع صورة من الجهاز
+                رفع أيقونة من الجهاز
               </button>
               <button
                 type="button"
@@ -244,7 +199,7 @@ export default function CertificatesManager() {
             {useFileUpload ? (
               <div>
                 <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                  صورة
+                  أيقونة
                 </label>
                 <input
                   type="file"
@@ -254,7 +209,7 @@ export default function CertificatesManager() {
                 />
                 {previewUrl && (
                   <div className="mt-4">
-                    <p className="text-sm text-text dark:text-gray-300 mb-2">معاينة الصورة:</p>
+                    <p className="text-sm text-text dark:text-gray-300 mb-2">معاينة الأيقونة:</p>
                     <img
                       src={previewUrl}
                       alt="Preview"
@@ -266,18 +221,18 @@ export default function CertificatesManager() {
             ) : (
               <div>
                 <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
-                  رابط الصورة
+                  رابط الأيقونة
                 </label>
                 <input
                   {...register("image_url")}
                   type="url"
                   className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-                  placeholder="https://example.com/image.jpg"
+                  placeholder="https://example.com/icon.jpg"
                 />
                 {errors.image_url && <p className="mt-1 text-sm text-red-600">{errors.image_url.message}</p>}
                 {imageUrlValue && (
                   <div className="mt-4">
-                    <p className="text-sm text-text dark:text-gray-300 mb-2">معاينة الصورة:</p>
+                    <p className="text-sm text-text dark:text-gray-300 mb-2">معاينة الأيقونة:</p>
                     <img
                       src={imageUrlValue}
                       alt="Preview"
@@ -309,7 +264,7 @@ export default function CertificatesManager() {
           </div>
         </form>
       </motion.div>
-      {/* قسم عرض الشهادات */}
+      {/* قسم عرض المهارات */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -317,36 +272,32 @@ export default function CertificatesManager() {
         className="bg-white dark:bg-gray-800 rounded-xl shadow-lg"
       >
         <div className="p-8">
-          <h2 className="text-3xl font-bold mb-8 text-primary dark:text-white">الشهادات الحالية</h2>
+          <h2 className="text-3xl font-bold mb-8 text-primary dark:text-white">المهارات الحالية</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {certificates.map((cert, index) => (
+            {skills.map((skill, index) => (
               <motion.div
-                key={cert.id}
+                key={skill.id}
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
                 className="bg-white dark:bg-gray-700 rounded-xl shadow-md overflow-hidden card-hover"
               >
                 <div className="relative h-48">
-                  <img src={cert.image_url} alt={cert.title} className="w-full h-full object-cover" />
+                  <img src={skill.image_url} alt={skill.title} className="w-full h-full object-cover" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
                 </div>
                 <div className="p-6">
-                  <h3 className="font-bold text-xl mb-2 text-gray-900 dark:text-white">{cert.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-300 mb-2">{cert.issuer}</p>
-                  <p className="text-text text-sm dark:text-gray-300">
-                    {new Date(cert.date).toLocaleDateString("ar-EG")}
-                  </p>
+                  <h3 className="font-bold text-xl mb-2 text-gray-900 dark:text-white">{skill.title}</h3>
                   <div className="mt-4 flex gap-4">
                     <button
-                      onClick={() => handleEditClick(cert)}
+                      onClick={() => handleEditClick(skill)}
                       className="text-primary hover:text-secondary flex items-center gap-1 dark:text-blue-400 dark:hover:text-blue-300"
                     >
                       <Edit className="w-5 h-5" />
                       تعديل
                     </button>
                     <button
-                      onClick={() => handleDelete(cert.id!)}
+                      onClick={() => handleDelete(skill.id!)}
                       className="text-red-600 hover:text-red-700 flex items-center gap-1 dark:text-red-400 dark:hover:text-red-300"
                     >
                       <Trash2 className="w-5 h-5" />

@@ -27,6 +27,7 @@ import PortfolioManager from "../components/dashboard/PortfolioManager";
 import SupportManager from "../components/dashboard/SupportManager";
 import AboutManager from "../components/dashboard/AboutManager";
 import ThemeManager from "../components/dashboard/ThemeManager";
+import SkillsManager from "../components/Dashboard/SkillsManager";
 
 const applyThemeColors = async () => {
   try {
@@ -138,7 +139,8 @@ export default function Dashboard() {
   const menuItems = [
     { path: "/dashboard/theme", icon: Palette, text: "إدارة الألوان" },
     { path: "/dashboard/about", icon: User, text: "من أنا" },
-    { path: "/dashboard/certificates", icon: GraduationCap, text: "الشهادات  و المهارات " },
+    { path: "/dashboard/skills", icon: Code, text: " المهارات " },
+    { path: "/dashboard/certificates", icon: GraduationCap, text: "الشهادات   " },
     { path: "/dashboard/services", icon: Briefcase, text: "الخدمات" },
     { path: "/dashboard/portfolio", icon: Code, text: "الأعمال" },
     { path: "/dashboard/messages", icon: MessageSquare, text: "الرسائل" },
@@ -300,6 +302,7 @@ export default function Dashboard() {
             />
             <Route path="/theme" element={<ThemeManager />} />
             <Route path="/about" element={<AboutManager />} />
+            <Route path="/skills" element={<SkillsManager />} />
             <Route path="/certificates" element={<CertificatesManager />} />
             <Route path="/services" element={<ServicesManager />} />
             <Route path="/portfolio" element={<PortfolioManager />} />
