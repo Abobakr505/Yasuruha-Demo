@@ -8,6 +8,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
 // import CopyProtection from "./ui/CopyProtection";
 import NotFound from "./pages/NotFound";
+import ProjectDetails from "./pages/ProjectDetails";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
         <Toaster position="top-center" />
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path="/projects/:id" element={<ProjectDetails />} />
           <Route path="/login" element={<Login />} />
           <Route path="*" element={<NotFound />} />
           <Route element={<ProtectedRoute />}>

@@ -7,23 +7,28 @@ import toast from "react-hot-toast";
 import { Trash2, Plus, Link as LinkIcon, Edit, X } from "lucide-react";
 import { motion } from "framer-motion";
 
-// تعريف schema التحقق باستخدام Zod
+// تحديث schema لدعم long_description وصور فرعية (sub_images كمصفوفة روابط مؤقتة للعرض، لكن في DB ستكون في جدول منفصل)
 const projectSchema = z.object({
   title: z.string().min(2, "العنوان يجب أن يكون حرفين على الأقل"),
   description: z.string().min(10, "الوصف يجب أن يكون 10 أحرف على الأقل"),
+  long_description: z.string().min(50, "الوصف الطويل يجب أن يكون 50 حرفاً على الأقل").optional(),
   link: z.string().url("الرجاء إدخال رابط صحيح"),
   image_url: z.string().url().optional(),
+  sub_images: z.array(z.string().url()).optional(), // مصفوفة روابط الصور الفرعية
 });
 
 type Project = z.infer<typeof projectSchema> & {
   id?: string;
   image_url: string;
+  sub_images?: string[]; // إضافة للصور الفرعية
 };
 
 export default function PortfolioManager() {
   const [projects, setProjects] = React.useState<Project[]>([]);
   const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
+  const [selectedSubFiles, setSelectedSubFiles] = React.useState<File[]>([]); // ملفات الصور الفرعية
+  const [subPreviews, setSubPreviews] = React.useState<string[]>([]); // معاينات الصور الفرعية
   const [isUploading, setIsUploading] = React.useState(false);
   const [useFileUpload, setUseFileUpload] = React.useState(true);
   const [editingId, setEditingId] = React.useState<string | null>(null);
@@ -41,101 +46,111 @@ export default function PortfolioManager() {
 
   const imageUrlValue = watch("image_url");
 
-  // جلب المشاريع عند تحميل المكون
+  // جلب المشاريع مع الصور الفرعية
   React.useEffect(() => {
     fetchProjects();
     return () => {
       if (previewUrl) URL.revokeObjectURL(previewUrl);
+      subPreviews.forEach((url) => URL.revokeObjectURL(url));
     };
   }, []);
 
-  // جلب المشاريع من Supabase
   const fetchProjects = async () => {
     try {
-      const { data, error } = await supabase
+      const { data: projectsData, error: projectsError } = await supabase
         .from("projects")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setProjects(data || []);
+      if (projectsError) throw projectsError;
+
+      // جلب الصور الفرعية لكل مشروع
+      const projectsWithSubImages = await Promise.all(
+        (projectsData || []).map(async (project) => {
+          const { data: subImagesData } = await supabase
+            .from("project_images")
+            .select("image_url")
+            .eq("project_id", project.id);
+          return { ...project, sub_images: subImagesData?.map((img) => img.image_url) || [] };
+        })
+      );
+
+      setProjects(projectsWithSubImages);
     } catch (error) {
       toast.error("حدث خطأ في جلب المشاريع");
     }
   };
 
-  // معالجة النقر على زر التعديل
   const handleEditClick = (project: Project) => {
     setEditingId(project.id!);
     reset({
       ...project,
     });
     setPreviewUrl(project.image_url);
+    setSubPreviews(project.sub_images || []);
     setUseFileUpload(false);
   };
 
-  // إلغاء التعديل
   const cancelEdit = () => {
     setEditingId(null);
     reset();
     setSelectedFile(null);
     setPreviewUrl(null);
+    setSelectedSubFiles([]);
+    setSubPreviews([]);
     setUseFileUpload(true);
   };
 
-  // معالجة تغيير ملف الصورة
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     if (!file.type.startsWith("image/")) {
       toast.error("الرجاء اختيار ملف صورة صالح");
       return;
     }
-
     if (file.size > 5 * 1024 * 1024) {
       toast.error("حجم الصورة يجب ألا يتجاوز 5 ميجابايت");
       return;
     }
-
     setSelectedFile(file);
     setPreviewUrl(URL.createObjectURL(file));
   };
 
-  // رفع الصورة إلى Supabase Storage
-  const uploadImage = async () => {
-    if (!selectedFile) {
-      if (editingId) return previewUrl;
-      throw new Error("لم يتم اختيار صورة");
+  // معالجة تغيير الصور الفرعية (متعددة)
+  const handleSubFilesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const validFiles = files.filter((file) => file.type.startsWith("image/") && file.size <= 5 * 1024 * 1024);
+    if (validFiles.length !== files.length) {
+      toast.error("بعض الملفات غير صالحة أو كبيرة جداً");
     }
+    setSelectedSubFiles((prev) => [...prev, ...validFiles]);
+    setSubPreviews((prev) => [...prev, ...validFiles.map((file) => URL.createObjectURL(file))]);
+  };
 
-    const fileExt = selectedFile.name.split(".").pop();
-    const fileName = `${Date.now()}_${Math.random()
-      .toString(36)
-      .substring(2, 15)}.${fileExt}`;
+  // حذف معاينة صورة فرعية
+  const removeSubPreview = (index: number) => {
+    setSelectedSubFiles((prev) => prev.filter((_, i) => i !== index));
+    setSubPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
 
-    const { error } = await supabase.storage
-      .from("project_images")
-      .upload(fileName, selectedFile);
+  const uploadImage = async (file: File) => {
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 15)}.${fileExt}`;
 
+    const { error } = await supabase.storage.from("project_images").upload(fileName, file);
     if (error) throw error;
 
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("project_images").getPublicUrl(fileName);
-
+    const { data: { publicUrl } } = supabase.storage.from("project_images").getPublicUrl(fileName);
     return publicUrl;
   };
 
-  // معالجة إرسال النموذج
   const onSubmit = async (data: Project) => {
     try {
       setIsUploading(true);
 
       let finalImageUrl = "";
-
       if (useFileUpload) {
-        finalImageUrl = await uploadImage();
+        if (selectedFile) finalImageUrl = await uploadImage(selectedFile);
       } else {
         if (!data.image_url) {
           toast.error("الرجاء إدخال رابط الصورة");
@@ -146,43 +161,48 @@ export default function PortfolioManager() {
 
       const projectData = { ...data, image_url: finalImageUrl };
 
+      let projectId = editingId;
       if (editingId) {
-        // تحديث المشروع الموجود
-        const { error } = await supabase
-          .from("projects")
-          .update(projectData)
-          .eq("id", editingId);
-
+        // تحديث المشروع
+        const { error } = await supabase.from("projects").update(projectData).eq("id", editingId);
         if (error) throw error;
         toast.success("تم تحديث المشروع بنجاح");
       } else {
         // إضافة مشروع جديد
-        const { error } = await supabase.from("projects").insert([projectData]);
+        const { data: inserted, error } = await supabase.from("projects").insert([projectData]).select();
         if (error) throw error;
+        projectId = inserted[0].id;
         toast.success("تم إضافة المشروع بنجاح");
+      }
+
+      // رفع الصور الفرعية الجديدة وإضافتها إلى الجدول
+      if (selectedSubFiles.length > 0) {
+        const subImageUrls = await Promise.all(selectedSubFiles.map(uploadImage));
+        const subImagesData = subImageUrls.map((url) => ({ project_id: projectId, image_url: url }));
+        const { error: subError } = await supabase.from("project_images").insert(subImagesData);
+        if (subError) throw subError;
       }
 
       reset();
       setSelectedFile(null);
       setPreviewUrl(null);
+      setSelectedSubFiles([]);
+      setSubPreviews([]);
       setEditingId(null);
       await fetchProjects();
     } catch (error) {
       console.error("Error saving project:", error);
-      toast.error(
-        error instanceof Error ? error.message : "حدث خطأ غير متوقع أثناء الحفظ"
-      );
+      toast.error(error instanceof Error ? error.message : "حدث خطأ غير متوقع أثناء الحفظ");
     } finally {
       setIsUploading(false);
     }
   };
 
-  // حذف مشروع
   const handleDelete = async (id: string) => {
     try {
+      // حذف الصور الفرعية أولاً (بفضل ON DELETE CASCADE)
       const { error } = await supabase.from("projects").delete().eq("id", id);
       if (error) throw error;
-
       toast.success("تم حذف المشروع بنجاح");
       await fetchProjects();
     } catch (error) {
@@ -192,7 +212,6 @@ export default function PortfolioManager() {
 
   return (
     <div className="space-y-8">
-      {/* نموذج إضافة/تعديل مشروع */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -250,6 +269,24 @@ export default function PortfolioManager() {
             {errors.description && (
               <p className="mt-1 text-sm text-red-600">
                 {errors.description.message}
+              </p>
+            )}
+          </div>
+
+          {/* إضافة حقل الوصف الطويل */}
+          <div>
+            <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
+              الوصف الطويل
+            </label>
+            <textarea
+              {...register("long_description")}
+              rows={8}
+              className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+              placeholder="اكتب وصفاً مفصلاً للمشروع"
+            />
+            {errors.long_description && (
+              <p className="mt-1 text-sm text-red-600">
+                {errors.long_description.message}
               </p>
             )}
           </div>
@@ -332,6 +369,40 @@ export default function PortfolioManager() {
                     />
                   </div>
                 )}
+              </div>
+            )}
+          </div>
+
+          {/* إضافة صور فرعية */}
+          <div>
+            <label className="block text-sm font-medium text-text dark:text-gray-300 mb-2">
+              صور فرعية (اختياري، متعددة)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleSubFilesChange}
+              className="w-full p-3 border rounded-lg bg-white dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
+            />
+            {subPreviews.length > 0 && (
+              <div className="mt-4 grid grid-cols-4 gap-4">
+                {subPreviews.map((url, index) => (
+                  <div key={index} className="relative">
+                    <img
+                      src={url}
+                      alt={`Sub Preview ${index}`}
+                      className="w-24 h-24 object-cover rounded-lg border border-gray-300 dark:border-gray-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeSubPreview(index)}
+                      className="absolute top-0 right-0 bg-red-600 text-white rounded-full p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
               </div>
             )}
           </div>

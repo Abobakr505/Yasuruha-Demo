@@ -10,6 +10,7 @@ import {
   Clock,
   Stethoscope,
   ArrowUp,
+  Filter,
 } from "lucide-react";
 import { cardio } from "ldrs";
 cardio.register();
@@ -18,6 +19,7 @@ import Footer from "../components/Footer";
 import ContactForm from "../components/ContactForm";
 import { supabase } from "../lib/supabase";
 import img from '../../public/assets/images/home.webp';
+import { Link } from "react-router-dom";
 
 // دالة لجلب إعدادات الألوان من Supabase وتطبيقها على متغيرات CSS
 const applyThemeColors = async () => {
@@ -462,7 +464,10 @@ export default function Home() {
             <h2 className="text-4xl md:text-5xl font-bold dark:text-gray-100 border-r-4 border-l-4 border-primary dark:border-secondary pl-5 pr-5 rounded-lg">أعمالي</h2>
           </motion.div>
           {projects.length === 0 ? (
-            <p className="text-center text-gray-700 dark:text-gray-300 text-2xl py-16 font-semibold">لا توجد مشاريع متاحة حالياً</p>
+            <p className="text-center text-gray-700 dark:text-gray-300 text-2xl py-16 font-semibold flex justify-center items-center flex-col gap-4 ">
+              <Filter className="w-20 h-20"/>
+            لا توجد مشاريع متاحة حالياً
+            </p>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {projects.map((project) => (
@@ -485,16 +490,13 @@ export default function Home() {
                   <div className="p-8 text-left">
                     <h3 className="text-2xl font-bold mb-4 text-primary dark:text-secondary">{project.title}</h3>
                     <p className="text-gray-700 dark:text-gray-300 text-lg mb-6 leading-relaxed">{project.description}</p>
-                    <motion.a
-                      href={project.link}
-                      target="_blank"
+                    <Link
+                      to={`/projects/${project.id}`}
                       rel="noopener noreferrer"
-                      className="flex items-center gap-3 px-8 py-4 bg-primary dark:bg-secondary text-white rounded-full shadow-lg hover:bg-primary/90 transition-all duration-300 font-semibold"
-                      whileHover={{ scale: 1.05 }}
-                    >
+                      className="flex items-center gap-3 px-8 py-4 bg-primary dark:bg-secondary text-white rounded-full shadow-lg hover:bg-secondary hover:dark:bg-primary transition-all duration-300 font-semibold hover:scale-110 h "                     >
                       <ExternalLink className="w-5 h-5" />
-                      زيارة المشروع
-                    </motion.a>
+                      تفاصيل المشروع
+                    </Link>
                   </div>
                 </motion.div>
               ))}
