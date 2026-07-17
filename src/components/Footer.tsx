@@ -112,7 +112,7 @@ export default function Footer() {
           <div className="flex items-center gap-3 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md">
             <span>تصميم وتطوير</span>
             <a
-              href="https://yasuruha.netlify.app/"
+              href="https://yasuruha.vercel.app/"
               target="_blank"
               rel="noreferrer"
               className="flex items-center gap-2 hover:opacity-80 transition"
